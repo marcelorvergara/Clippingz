@@ -2,7 +2,7 @@
   <b-container class="container-fluid mt-2">
     <b-row class="mt-2" cols-sm="3">
       <b-col></b-col>
-      <b-col style="min-width: 300px">
+      <b-col style="min-width: 380px">
         <b-card no-body
                 header="Página de Login do Acesso Restrito"
                 align="left"

@@ -43,6 +43,14 @@
                 <b-button @click="pesquisarExcluir">Listar Matérias</b-button>
               </b-form-group>
             </div>
+            <div class="card-body" v-if="mostraSelTodas">
+              <b-form-group class="text-right mt-3">
+                <b-button @click="slecionarTodasExcluir" variant="outline-secondary" size="sm">Selecionar Todas</b-button>
+              </b-form-group>
+              <b-form-group class="text-right mt-3">
+                <b-button @click="desmarcarTodasExcluir" variant="outline-secondary" size="sm">Desmarcar Todas</b-button>
+              </b-form-group>
+            </div>
           </b-card>
         </b-col>
       </b-row>
@@ -98,8 +106,6 @@
           </b-card-group>
         </b-col>
       </b-row>
-      <b-alert show="5" variant="success" v-if="sucesso" dismissible>{{ sucesso }}</b-alert>
-      <b-alert show="5" variant="danger" v-if="error" dismissible>{{ error }}</b-alert>
       <b-row class="mt-2 mb-5" v-if="listaBool">
         <b-col>
           <b-button block @click="enviaLista(materias)">Gravar</b-button>
@@ -153,6 +159,7 @@ export default {
 name: "ConfigNews",
   data(){
     return{
+      mostraSelTodas: false,
       listaBool: false,
       excluListaBool: false,
       excluirBusca:'',
@@ -177,6 +184,14 @@ name: "ConfigNews",
     }
   },
   methods:{
+    desmarcarTodasExcluir(){
+      this.meteriasExcl = []
+    },
+    slecionarTodasExcluir(){
+      for (let i=0; i< this.excluLista.length; i++){
+        this.meteriasExcl.push(this.excluLista[i])
+      }
+    },
     excluirMat(materiasExcl){
       const db = firebase.firestore()
       for (let i=0; i < materiasExcl.length; i++){
@@ -193,6 +208,7 @@ name: "ConfigNews",
       }
     },
     pesquisarExcluir(){
+      this.mostraSelTodas = true;
       this.listaBool = false
       this.excluListaBool = true
       this.excluLista = []

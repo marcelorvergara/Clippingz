@@ -20,7 +20,7 @@
         </b-navbar-nav>
 
         <b-navbar-nav>
-          <b-nav-item class="ml-4" to="/AcessoRestrito">Acesso Restrito</b-nav-item>
+          <b-nav-item class="ml-4" to="/confignews">Acesso Restrito</b-nav-item>
         </b-navbar-nav>
       </b-collapse>
       <b-button v-show="user.data" variant="outline-danger" @click="signOut" class="ml-2" size="sm"><b-icon icon="door-closed"></b-icon></b-button>

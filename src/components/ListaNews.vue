@@ -1,7 +1,21 @@
 <template>
   <b-container class="mt-3">
+      <b-card
+          v-if="!$store.getters.getNewsLista.length"
+          overlay
+          img-src="https://picsum.photos/900/250/?image=3"
+          img-alt="Card Image"
+          text-variant="white"
+          title="Nenhuma notícia encontrada no banco de dados"
+          sub-title="O administrador do sistema não inseriu notícias no banco de dados para visualização dos usuários">
+        <b-card-text>
+          Para que os usuários do site Clippingz consigam ver notícias nessa página, é necessário que o administrador
+          do sistema insira notícias no banco de dados. Assim que a primeira notícia for inserida, essa página dará
+          lugar a notícia inserida.
+        </b-card-text>
+      </b-card>
       <b-carousel
-          v-if="this.$store.getters.getNewsLista"
+          v-else
           id="carousel"
           v-model="slide"
           :interval="4000"
@@ -17,7 +31,7 @@
         <b-carousel-slide v-for="(news,index) in this.$store.getters.getNewsLista" :key="index"
             :caption="news.title"
             :text="news.description"
-            :img-src=imagens[index].img
+            :img-src=getIagens(index)
         >
         <router-link
             exact :style="{ cursor: 'grab'}"
@@ -38,53 +52,13 @@ export default {
     return{
       slide: 0,
       sliding: null,
-      imagens:[
-        {img: 'https://picsum.photos/1024/480/?image=52'},
-        {img: 'https://picsum.photos/1024/480/?image=54'},
-        {img: 'https://picsum.photos/1024/480/?image=55'},
-        {img: 'https://picsum.photos/1024/480/?image=10'},
-        {img: 'https://picsum.photos/1024/480/?image=12'},
-        {img: 'https://picsum.photos/1024/480/?image=22'},
-        {img: 'https://picsum.photos/1024/480/?image=23'},
-        {img: 'https://picsum.photos/1024/480/?image=52'},
-        {img: 'https://picsum.photos/1024/480/?image=54'},
-        {img: 'https://picsum.photos/1024/480/?image=55'},
-        {img: 'https://picsum.photos/1024/480/?image=10'},
-        {img: 'https://picsum.photos/1024/480/?image=12'},
-        {img: 'https://picsum.photos/1024/480/?image=22'},
-        {img: 'https://picsum.photos/1024/480/?image=23'},
-        {img: 'https://picsum.photos/1024/480/?image=52'},
-        {img: 'https://picsum.photos/1024/480/?image=54'},
-        {img: 'https://picsum.photos/1024/480/?image=55'},
-        {img: 'https://picsum.photos/1024/480/?image=10'},
-        {img: 'https://picsum.photos/1024/480/?image=12'},
-        {img: 'https://picsum.photos/1024/480/?image=22'},
-        {img: 'https://picsum.photos/1024/480/?image=23'},
-        {img: 'https://picsum.photos/1024/480/?image=52'},
-        {img: 'https://picsum.photos/1024/480/?image=54'},
-        {img: 'https://picsum.photos/1024/480/?image=55'},
-        {img: 'https://picsum.photos/1024/480/?image=10'},
-        {img: 'https://picsum.photos/1024/480/?image=12'},
-        {img: 'https://picsum.photos/1024/480/?image=22'},
-        {img: 'https://picsum.photos/1024/480/?image=23'},
-        {img: 'https://picsum.photos/1024/480/?image=52'},
-        {img: 'https://picsum.photos/1024/480/?image=54'},
-        {img: 'https://picsum.photos/1024/480/?image=55'},
-        {img: 'https://picsum.photos/1024/480/?image=10'},
-        {img: 'https://picsum.photos/1024/480/?image=12'},
-        {img: 'https://picsum.photos/1024/480/?image=22'},
-        {img: 'https://picsum.photos/1024/480/?image=23'},
-        {img: 'https://picsum.photos/1024/480/?image=52'},
-        {img: 'https://picsum.photos/1024/480/?image=54'},
-        {img: 'https://picsum.photos/1024/480/?image=55'},
-        {img: 'https://picsum.photos/1024/480/?image=10'},
-        {img: 'https://picsum.photos/1024/480/?image=12'},
-        {img: 'https://picsum.photos/1024/480/?image=22'},
-        {img: 'https://picsum.photos/1024/480/?image=23'}
-      ]
+      imagens:''
     }
   },
   methods:{
+    getIagens(index){
+      return `https://picsum.photos/1024/480?random=${index}`
+    },
     // eslint-disable-next-line no-unused-vars
     onSlideStart(slide) {
       this.sliding = true

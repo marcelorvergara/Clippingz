@@ -17,7 +17,7 @@
         </template>
       </b-card>
     </b-card-group>
-    <b-card-group columns v-if="$store.getters.getNewsResult">
+    <b-card-group columns v-if="!$store.getters.getNewsResult.length">
       <b-card>
         <b-card-text>
           Nenhuma notícia encontrada
