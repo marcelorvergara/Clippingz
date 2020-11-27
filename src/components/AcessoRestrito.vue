@@ -42,15 +42,15 @@
                 </div>
               </div>
               <b-form-group class="mb-0 text-right">
-                <button @click="$router.go(-1)" class="btn btn-outline-dark">Voltar</button>
-                <button @click="restSenha" class="ml-2 btn btn-outline-dark">
+                <b-button size="sm" @click="$router.go(-1)" variant="outline-dark" class="ml-2">Voltar</b-button>
+                <b-button size="sm" @click="restSenha" variant="outline-dark"  class="ml-2">
                   Reset Senha
                   <b-spinner v-show="loadingRS" small label="Carregando..."></b-spinner>
-                </button>
-                <button type="submit" class="ml-2 btn btn-outline-dark">
+                </b-button>
+                <b-button size="sm" type="submit" variant="outline-dark" class="ml-2">
                   Login
                   <b-spinner v-show="loading" small label="Carregando..."></b-spinner>
-                </button>
+                </b-button>
               </b-form-group>
             </form>
           </div>

@@ -3,7 +3,6 @@
       <b-card
           v-if="!$store.getters.getNewsLista.length"
           overlay
-          img-src="https://picsum.photos/900/250/?image=3"
           img-alt="Card Image"
           text-variant="white"
           title="Nenhuma notícia encontrada no banco de dados"
@@ -13,33 +12,36 @@
           do sistema insira notícias no banco de dados. Assim que a primeira notícia for inserida, essa página dará
           lugar a notícia inserida.
         </b-card-text>
+        <b-card-text class="d-flex justify-content-center mb-3">
+          <b-spinner variant="danger" label="Loading..." style="width: 10rem; height: 10rem;" type="grow"></b-spinner>
+        </b-card-text>
       </b-card>
-      <b-carousel
-          v-else
-          id="carousel"
-          v-model="slide"
-          :interval="4000"
-          fade
-          controls
-          indicators
-          img-width="1024"
-          img-height="480"
-          style="text-shadow: 1px 1px 2px #333;"
-          @sliding-start="onSlideStart"
-          @sliding-end="onSlideEnd"
+    <b-carousel
+        v-else
+        id="carousel"
+        v-model="slide"
+        :interval="4000"
+        fade
+        controls
+        indicators
+        img-width="1024"
+        img-height="480"
+        style="text-shadow: 1px 1px 2px #333;"
+        @sliding-start="onSlideStart"
+        @sliding-end="onSlideEnd"
+    >
+      <b-carousel-slide v-for="(news,index) in this.$store.getters.getNewsLista" :key="index"
+          :caption="news.title"
+          :text="news.description"
+          :img-src=getIagens(index)
       >
-        <b-carousel-slide v-for="(news,index) in this.$store.getters.getNewsLista" :key="index"
-            :caption="news.title"
-            :text="news.description"
-            :img-src=getIagens(index)
-        >
-        <router-link
-            exact :style="{ cursor: 'grab'}"
-            tag="h5" class="card-title" :to="{ name:'detalhesnews', params:{news: news}}">
-            Clique Aqui para Detalhes
-        </router-link>
-        </b-carousel-slide>
-      </b-carousel>
+      <router-link
+          exact :style="{ cursor: 'grab'}"
+          tag="h5" class="card-title" :to="{ name:'detalhesnews', params:{news: news}}">
+          Clique Aqui para Detalhes
+      </router-link>
+      </b-carousel-slide>
+    </b-carousel>
   </b-container>
 </template>
 

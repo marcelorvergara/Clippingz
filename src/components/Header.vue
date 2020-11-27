@@ -44,10 +44,18 @@ export default {
       this.$store.commit('resetNewsResult')
       var newsArr = this.$store.getters.getNewsLista
       for (let i= 0; i< newsArr.length;i++){
-        var ok = newsArr[i].desc.includes(this.palavra)
-        if (ok){
+        if (newsArr[i].desc.toLowerCase().includes(this.palavra.toLowerCase()) ||
+              newsArr[i].content.toLowerCase().includes(this.palavra.toLowerCase()) ||
+              newsArr[i].title.toLowerCase().includes(this.palavra.toLowerCase()) ||
+              newsArr[i].author.toLowerCase().includes(this.palavra.toLowerCase())
+        ){
           this.$store.commit('setNewsResult',newsArr[i])
         }
+        // var ok = newsArr[i].desc.includes(this.palavra)
+        // var ok1 = newsArr[i].content.includes(this.palavra)
+        // if (ok || ok1){
+        //   this.$store.commit('setNewsResult',newsArr[i])
+        // }
       }
       if (this.$route.name !== 'resultadopesquisa'){
         this.$router.push({name: 'resultadopesquisa'})

@@ -10,12 +10,13 @@
                   >
             <div class="card-body">
               <b-form-group
+                  required
                   id="pclabel"
                   description="Pesquise aqui notícias por palava-chave"
                   label="Palavra-Chave"
                   label-for="palavra"
                   label-align-sm="left" class="mb-0">
-                <b-form-input id="palavra" v-model="palavrachave" trim></b-form-input>
+                <b-form-input id="palavra" v-model="palavrachave" trim ></b-form-input>
               </b-form-group>
               <b-form-group
                   label="Campo da pesquisa:"
@@ -29,6 +30,12 @@
               <b-form-group class="text-right mt-3">
                 <b-button @click="pesquisar">Pesquisar</b-button>
               </b-form-group>
+              <b-form-group class="text-right mt-3" v-if="seleTodas">
+                <b-button @click="slecionarTodasPesquisa" variant="outline-secondary" size="sm">Selecionar Todas</b-button>
+              </b-form-group>
+              <b-form-group class="text-right mt-3" v-if="seleTodas">
+                <b-button @click="desmarcarTodasPesquisa" variant="outline-secondary" size="sm">Desmarcar Todas</b-button>
+              </b-form-group>
             </div>
           </b-card>
         </b-col>
@@ -36,8 +43,7 @@
           <b-card no-body
                   style="min-height: 360px"
                   header="Excluir Notícias do Slide"
-                  header-bg-variant="light"
-          >
+                  header-bg-variant="light">
             <div class="card-body">
               <b-form-group class="text-right mt-3">
                 <b-button @click="pesquisarExcluir">Listar Matérias</b-button>
@@ -122,7 +128,7 @@
           Configuração das Notícias
         </template>
         <div class="d-block text-center">
-          <h3>Notícia inserida com sucesso!</h3>
+          <h3>Notícia(s) inserida(s) com sucesso!</h3>
         </div>
         <b-button class="mt-3" variant="outline-dark" block @click="$bvModal.hide('modalok')">Fechar</b-button>
       </b-modal>
@@ -132,7 +138,7 @@
           Exclusão de Notícias
         </template>
         <div class="d-block text-center">
-          <h3>Notícia excluída com sucesso!</h3>
+          <h3>Notícia(s) excluída(s) com sucesso!</h3>
         </div>
         <b-button class="mt-3" variant="outline-dark" block @click="$bvModal.hide('modalexc')">Fechar</b-button>
       </b-modal>
@@ -159,6 +165,7 @@ export default {
 name: "ConfigNews",
   data(){
     return{
+      seleTodas:false,
       mostraSelTodas: false,
       listaBool: false,
       excluListaBool: false,
@@ -184,6 +191,14 @@ name: "ConfigNews",
     }
   },
   methods:{
+    desmarcarTodasPesquisa(){
+      this.materias = []
+    },
+    slecionarTodasPesquisa(){
+      for (let i=0; i< this.lista.news.length; i++){
+        this.materias.push(this.lista.news[i])
+      }
+    },
     desmarcarTodasExcluir(){
       this.meteriasExcl = []
     },
@@ -202,12 +217,16 @@ name: "ConfigNews",
         materia.get().then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
             doc.ref.delete();
-            this.$refs['my-modal-exc'].show()
+            this.$refs['my-modal-exc'].show();
+            this.excluLista = [];
+            this.excluListaBool = false;
+            this.mostraSelTodas = false;
           });
         });
       }
     },
     pesquisarExcluir(){
+      this.seleTodas = false;
       this.mostraSelTodas = true;
       this.listaBool = false
       this.excluListaBool = true
@@ -246,16 +265,23 @@ name: "ConfigNews",
             }, { merge: true })
             .then(()=> {
               this.$refs['my-modal'].show()
-              this.materias = [];
+              this.lista = [];
+              this.listaBool = false;
+              this.seleTodas = false;
+              this.palavrachave = '';
+              this.campoPesquisa = ''
+
             })
             .catch((error)=> {
               this.error = error
-              this.$refs['modalerr'].show()
+              this.$refs['my-modal-err'].show()
             });
       }
 
     },
     pesquisar(){
+      this.mostraSelTodas = false
+      this.seleTodas = true
       this.listaBool = true
       this.excluListaBool = false
       this.excluLista = []

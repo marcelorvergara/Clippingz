@@ -45,12 +45,10 @@ const actions ={
         function ontem(){
             //um dia atrás
             var old = new Date(Date.now() - 24 * 60 * 60 * 1000);
-            console.log(old.toISOString().slice(0,10))
             return old.toISOString().slice(0,10);
         }
         function hoje(){
             var datetime = new Date();
-            console.log(datetime.toISOString().slice(0,10))
             return datetime.toISOString().slice(0,10);
         }
     }
