@@ -7,7 +7,9 @@
 
       <b-collapse id="nav-text-collapse" is-nav>
         <b-navbar-nav>
-          <b-nav-text class="ml-3 text-monospace">Notícias Selecionadas</b-nav-text>
+          <b-nav-text class="ml-3 text-monospace">Notícias Selecionadas
+          <b-icon icon="newspaper"></b-icon>
+          </b-nav-text>
         </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">

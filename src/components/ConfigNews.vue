@@ -8,6 +8,7 @@
                   header="Pesquisa de Notícias"
                   header-bg-variant="light"
                   >
+
             <div class="card-body">
               <b-form-group
                   required
@@ -19,7 +20,7 @@
                 <b-form-input id="palavra" v-model="palavrachave" trim ></b-form-input>
               </b-form-group>
               <b-form-group
-                  label="Campo da pesquisa:"
+                  label="Onde pesquisar nas notícias:"
                   label-align-sm="left" class="mt-3">
                 <b-form-radio-group
                     class="pt-2"
@@ -28,7 +29,9 @@
                 ></b-form-radio-group>
               </b-form-group>
               <b-form-group class="text-right mt-3">
-                <b-button @click="pesquisar">Pesquisar</b-button>
+                <b-button @click="pesquisar">Pesquisar
+                  <b-icon icon="search"></b-icon>
+                </b-button>
               </b-form-group>
               <b-form-group class="text-right mt-3" v-if="seleTodas">
                 <b-button @click="slecionarTodasPesquisa" variant="outline-secondary" size="sm">Selecionar Todas</b-button>
@@ -42,12 +45,23 @@
         <b-col style="min-width: 260px" class="mt-2">
           <b-card no-body
                   style="min-height: 360px"
-                  header="Excluir Notícias do Slide"
+                  header="Excluir Notícias"
                   header-bg-variant="light">
             <div class="card-body">
-              <b-form-group class="text-right mt-3">
-                <b-button @click="pesquisarExcluir">Listar Matérias</b-button>
+
+              <b-form-group label="Selecione as matérias para exclusão:">
+                <b-form-radio-group
+                    id="radio-group-exclusao"
+                    v-model="selExclusao"
+                    :options="optExclusao"
+                    name="radio-options"></b-form-radio-group>
+                <b-form-group class="text-right mt-3">
+                  <b-button @click="pesquisarExcluir">Listar
+                    <b-icon icon="card-list"></b-icon>
+                  </b-button>
+                </b-form-group>
               </b-form-group>
+
             </div>
             <div class="card-body" v-if="mostraSelTodas">
               <b-form-group class="text-right mt-3">
@@ -114,45 +128,59 @@
       </b-row>
       <b-row class="mt-2 mb-5" v-if="listaBool">
         <b-col>
-          <b-button block @click="enviaLista(materias)">Gravar</b-button>
+          <b-button block @click="enviaLista(materias)">Adicionar <b-icon icon="journal-plus"></b-icon></b-button>
         </b-col>
       </b-row>
       <b-row class="mt-2 mb-5" v-if="excluListaBool">
         <b-col>
-          <b-button block @click="excluirMat(meteriasExcl)">Excluir</b-button>
+          <b-button block @click="excluirMat(meteriasExcl)">Excluir <b-icon icon="trash"> </b-icon></b-button>
         </b-col>
       </b-row>
-
+<!--      model ok-->
       <b-modal id="modalok" ref="my-modal" hide-footer>
         <template #modal-title>
-          Configuração das Notícias
+          <b-icon icon="check2-circle" scale="2" variant="success"></b-icon>
+          <span class="m-3">Inserção das Notícias</span>
         </template>
         <div class="d-block text-center">
-          <h3>Notícia(s) inserida(s) com sucesso!</h3>
+          <h5>Notícia(s) inserida(s) com sucesso!</h5>
         </div>
         <b-button class="mt-3" variant="outline-dark" block @click="$bvModal.hide('modalok')">Fechar</b-button>
       </b-modal>
-
+<!-- model exclusão-->
       <b-modal id="modalexc" ref="my-modal-exc" hide-footer>
         <template #modal-title>
-          Exclusão de Notícias
+          <b-icon icon="exclamation-triangle-fill" scale="2" variant="warning"></b-icon>
+          <span class="m-3">Exclusão de Notícias</span>
         </template>
         <div class="d-block text-center">
-          <h3>Notícia(s) excluída(s) com sucesso!</h3>
+          <h5>Notícia(s) excluída(s) com sucesso!</h5>
         </div>
         <b-button class="mt-3" variant="outline-dark" block @click="$bvModal.hide('modalexc')">Fechar</b-button>
       </b-modal>
-
-      <b-modal id="modalerr" ref="my-modal-err" hide-footer>
+      <!-- model não há docs na base-->
+      <b-modal id="modalsemnot" ref="my-modal-no-docs" hide-footer>
         <template #modal-title>
-          Erro
+          <b-icon icon="exclamation-triangle-fill" scale="2" variant="warning"></b-icon>
+          <span class="m-3">Não há Notícias no Banco de Dados</span>
         </template>
         <div class="d-block text-center">
-          <h3> {{ error }}</h3>
+          <h5>Não foram encontradas notícias para o dia atual no banco de dados!
+            É necessário incluir notícias primeiro para excluir posteriormente!</h5>
+        </div>
+        <b-button class="mt-3" variant="outline-dark" block @click="$bvModal.hide('modalsemnot')">Fechar</b-button>
+      </b-modal>
+<!--model erro-->
+      <b-modal id="modalerr" ref="my-modal-err" hide-footer>
+        <template #modal-title>
+          <b-icon icon="x-circle" scale="2" variant="danger"></b-icon>
+          <span class="m-3">Erro</span>
+        </template>
+        <div class="d-block text-center">
+          <h5> {{ error }}</h5>
         </div>
         <b-button class="mt-3" variant="outline-dark" block @click="$bvModal.hide('modalerr')">Fechar</b-button>
       </b-modal>
-
     </b-container>
   </div>
 </template>
@@ -165,6 +193,11 @@ export default {
 name: "ConfigNews",
   data(){
     return{
+      optExclusao:[
+        { text:' Selecionar apenas matérias inseridas hoje', value: 'hoje'},
+        { text:' Selecionar todas as matérias', value:'todas'}
+      ],
+      selExclusao:'',
       seleTodas:false,
       mostraSelTodas: false,
       listaBool: false,
@@ -177,7 +210,7 @@ name: "ConfigNews",
       materias:[],
       meteriasExcl:[],
       lista:'',
-      palavrachave:'',
+      palavrachave: null,
       options:[
         {text: 'Título',value:'qInTitle'},
         {text: 'Conteúdo',value:'q'}
@@ -232,19 +265,54 @@ name: "ConfigNews",
       this.excluListaBool = true
       this.excluLista = []
       this.lista = []
-      const dataMat = new Date().toLocaleDateString()
-        // eslint-disable-next-line no-unused-vars
-        const db = firebase.firestore().collection("materias")
-            .where('dataMat','==',dataMat)
-            .get()
-            .then((querySnapshot) =>{
-              querySnapshot.forEach((doc) => {
-                this.excluLista.push(doc.data())
+      if (this.selExclusao === '' || this.selExclusao === null){
+        this.error = 'É necessário inserir um item!'
+        this.$refs['my-modal-err'].show()
+        this.excluListaBool = false
+        this.mostraSelTodas = false;
+      } else {
+        if (this.selExclusao === 'hoje'){
+          const dataMat = new Date().toLocaleDateString()
+          // eslint-disable-next-line no-unused-vars
+          const db = firebase.firestore().collection("materias")
+              .where('dataMat','==',dataMat)
+              .get()
+              .then((querySnapshot) =>{
+                if (!querySnapshot.empty){
+                  querySnapshot.forEach((doc) => {
+                    this.excluLista.push(doc.data())
+                  });
+                }else {
+                  this.$refs['my-modal-no-docs'].show()
+                }
+              })
+              .catch(function(error) {
+                this.error = error
+                this.$refs['my-modal-err'].show()
+                console.error("Error getting documents: ", error);
               });
-            })
-            .catch(function(error) {
-              console.error("Error getting documents: ", error);
-            });
+        } else if (this.selExclusao === 'todas'){
+          // eslint-disable-next-line no-unused-vars
+          const db = firebase.firestore().collection("materias")
+              .get()
+              .then((querySnapshot) =>{
+                if (!querySnapshot.empty){
+                  querySnapshot.forEach((doc) => {
+                    this.excluLista.push(doc.data())
+                  });
+                }else {
+                  this.$refs['my-modal-no-docs'].show()
+                }
+              })
+              .catch(function(error) {
+                this.error = error
+                this.$refs['my-modal-err'].show()
+                console.error("Error getting documents: ", error);
+              });
+        }
+      }
+
+
     },
     enviaLista(mat){
       this.sucesso = '';
@@ -277,18 +345,23 @@ name: "ConfigNews",
               this.$refs['my-modal-err'].show()
             });
       }
-
     },
     pesquisar(){
-      this.mostraSelTodas = false
-      this.seleTodas = true
-      this.listaBool = true
-      this.excluListaBool = false
-      this.excluLista = []
-      this.lista = []
-      this.$store.commit('resetNews')
-      this.$store.dispatch('getNews', {palavra: this.palavrachave, onde: this.campoPesquisa});
-      this.lista = this.$store.state.news
+
+      if (this.palavrachave === null || this.palavrachave === '' || this.campoPesquisa ===''){
+        this.error = 'É necessário inserir uma palavra para pesquisa e escolher onde a pesquisa será feita!'
+        this.$refs['my-modal-err'].show()
+      }else {
+        this.mostraSelTodas = false
+        this.seleTodas = true
+        this.listaBool = true
+        this.excluListaBool = false
+        this.excluLista = []
+        this.lista = []
+        this.$store.commit('resetNews')
+        this.$store.dispatch('getNews', {palavra: this.palavrachave, onde: this.campoPesquisa});
+        this.lista = this.$store.state.news
+      }
     }
   },
   computed:{

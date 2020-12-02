@@ -1,5 +1,5 @@
 <template>
-  <b-container class="container-fluid mt-2">
+  <b-container class="container-fluid mt-5">
     <b-row class="mt-2" cols-sm="3">
       <b-col></b-col>
       <b-col style="min-width: 380px">
@@ -10,12 +10,15 @@
           <div class="card-body">
             <b-alert v-if="sucesso" show="5" variant="success" dismissible>{{sucesso}}</b-alert >
             <b-alert v-if="error" show="10" variant="danger" dismissible>{{error}}</b-alert >
-            <form action="#" @submit.prevent="enviar">
-              <div class="form-group row">
-                <label for="email" class="col-md-4 col-form-label text-md-right">Email</label>
+            <form action="#" @submit.prevent="logar">
 
-                <div class="col-md-8">
-                  <input
+              <b-input-group class="" size="">
+                <b-input-group-append>
+                  <b-input-group-text>
+                    <b-icon icon="at" />
+                  </b-input-group-text>
+                </b-input-group-append>
+                  <b-form-input
                       id="email"
                       type="email"
                       class="form-control"
@@ -24,23 +27,25 @@
                       required
                       autofocus
                       v-model="form.email"
+                      placeholder="Insira o login"
                   />
-                </div>
-              </div>
+              </b-input-group>
 
-              <div class="form-group row">
-                <label for="senha" class="col-md-4 col-form-label text-md-right">Senha</label>
-
-                <div class="col-md-8">
-                  <input
+              <b-input-group class=" mt-3 mb-4" size="">
+                <b-input-group-append>
+                  <b-input-group-text>
+                    <b-icon icon="key" />
+                  </b-input-group-text>
+                </b-input-group-append>
+                  <b-form-input
                       id="senha"
                       type="password"
                       class="form-control"
                       name="senha"
                       v-model="form.senha"
+                      placeholder="Insira a senha"
                   />
-                </div>
-              </div>
+                </b-input-group>
               <b-form-group class="mb-0 text-right">
                 <b-button size="sm" @click="$router.go(-1)" variant="outline-dark" class="ml-2">Voltar</b-button>
                 <b-button size="sm" @click="restSenha" variant="outline-dark"  class="ml-2">
@@ -88,11 +93,16 @@ export default {
         this.sucesso = `E-mail enviado para ${this.form.email} para procedimento de reset de senha!`
         this.loadingRS = false;
       }).catch((error) => {
-        this.error = error
         this.loadingRS = false;
+        console.log(error.message)
+        if (error.message === 'There is no user record corresponding to this identifier. The user may have been deleted.'){
+          this.error = 'Email ou login não encontrado!'
+        } else if (error.message === 'The email address is badly formatted.'){
+          this.error = 'Email inválido!'
+        }
       });
     },
-    enviar() {
+    logar() {
       this.error = ''
       this.loading = true
       firebase.auth().signInWithEmailAndPassword(this.form.email, this.form.senha)
@@ -101,7 +111,15 @@ export default {
             this.$router.replace({ name: "confignews" });
           })
           .catch((error) => {
-            this.error = error
+            this.loadingRS = false;
+            console.log(error.message)
+            if (error.message === 'There is no user record corresponding to this identifier. The user may have been deleted.'){
+              this.error = 'Email ou login não encontrado!'
+            } else if (error.message === 'The email address is badly formatted.'){
+              this.error = 'Email inválido!'
+            } else if (error.message === 'The password is invalid or the user does not have a password.'){
+              this.error = 'Email e/ou senha inválidos!'
+            }
             this.loading = false;
           });
     }

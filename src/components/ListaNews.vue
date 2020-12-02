@@ -71,8 +71,10 @@ export default {
       },
     getNews(){
       this.$store.commit('resetNewsLista')
+      const dataMat = new Date().toLocaleDateString()
         // eslint-disable-next-line no-unused-vars
         const db = firebase.firestore().collection("materias")
+            .where('dataMat','==',dataMat)
             .get()
             .then((querySnapshot) =>{
               querySnapshot.forEach((doc) => {
