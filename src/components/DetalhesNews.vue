@@ -3,7 +3,8 @@
     <div v-if="!$route.params.news.title" class="mt-4">
       Nenhuma notícia selecionada
       <hr>
-      <b-button @click="$router.go(-1)" squared variant="info">Voltar <b-icon icon="skip-backward-fill"></b-icon></b-button>
+      <b-button  variant="dark" @click="$router.go(-1)">
+        <span>Voltar </span><b-icon icon="backspace"></b-icon></b-button>
     </div>
     <div v-else>
     <b-card-text class="mt-2">
@@ -26,12 +27,12 @@
       <div class="text-right">
         <b-card-text>
           <b-link target="_blank" :href="$route.params.news.url">
-          <b-button pill variant="light">
+          <b-button variant="light">
             <span>Ir para a matéria completa </span><b-icon icon="globe"></b-icon></b-button>
           </b-link>
         </b-card-text>
         <b-card-text>
-          <b-button pill variant="light" @click="$router.go(-1)">
+          <b-button variant="light" @click="$router.go(-1)">
             <span>Voltar </span><b-icon icon="backspace"></b-icon></b-button>
         </b-card-text>
       </div>

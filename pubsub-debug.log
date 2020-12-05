@@ -1,14 +1,18 @@
 This is the Google Pub/Sub fake.
 Implementation may be incomplete or differ from the real system.
-dez 04, 2020 7:19:50 PM com.google.cloud.pubsub.testing.v1.Main main
+dez 05, 2020 2:27:07 PM com.google.cloud.pubsub.testing.v1.Main main
 INFORMAÇÕES: IAM integration is disabled. IAM policy methods and ACL checks are not supported
-dez 04, 2020 7:19:51 PM io.gapi.emulators.netty.NettyUtil applyJava7LongHostnameWorkaround
+dez 05, 2020 2:27:08 PM io.gapi.emulators.netty.NettyUtil applyJava7LongHostnameWorkaround
 INFORMAÇÕES: Applied Java 7 long hostname workaround.
-dez 04, 2020 7:19:51 PM com.google.cloud.pubsub.testing.v1.Main main
+dez 05, 2020 2:27:08 PM com.google.cloud.pubsub.testing.v1.Main main
 INFORMAÇÕES: Server started, listening on 8085
-dez 04, 2020 7:19:51 PM io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+dez 05, 2020 2:27:08 PM io.gapi.emulators.grpc.GrpcServer$3 operationComplete
 INFORMAÇÕES: Adding handler(s) to newly registered Channel.
-dez 04, 2020 7:19:52 PM io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+dez 05, 2020 2:27:10 PM io.gapi.emulators.grpc.GrpcServer$3 operationComplete
 INFORMAÇÕES: Adding handler(s) to newly registered Channel.
-dez 04, 2020 7:19:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+dez 05, 2020 2:27:10 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFORMAÇÕES: Detected HTTP/2 connection.
+dez 05, 2020 2:27:42 PM io.gapi.emulators.grpc.GrpcServer$3 operationComplete
+INFORMAÇÕES: Adding handler(s) to newly registered Channel.
+dez 05, 2020 2:27:42 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFORMAÇÕES: Detected HTTP/2 connection.

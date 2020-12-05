@@ -8,7 +8,7 @@
       <b-collapse id="nav-text-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-text class="ml-3 text-monospace">Notícias Selecionadas
-          <b-icon icon="newspaper"></b-icon>
+          <b-icon scale="1" icon="newspaper"></b-icon>
           </b-nav-text>
         </b-navbar-nav>
 
@@ -44,25 +44,20 @@ export default {
   methods:{
     pesquisaNews(){
       this.$store.commit('resetNewsResult')
-      var newsArr = this.$store.getters.getNewsLista
-      for (let i= 0; i< newsArr.length;i++){
+      const newsArr = this.$store.getters.getNewsLista
+      console.log(newsArr)
+      for (let i = 0; i < newsArr.length; i++){
+        console.log(i)
         if (newsArr[i].desc.toLowerCase().includes(this.palavra.toLowerCase()) ||
               newsArr[i].content.toLowerCase().includes(this.palavra.toLowerCase()) ||
-              newsArr[i].title.toLowerCase().includes(this.palavra.toLowerCase()) ||
-              newsArr[i].author.toLowerCase().includes(this.palavra.toLowerCase())
-        ){
+              newsArr[i].title.toLowerCase().includes(this.palavra.toLowerCase()))
+        {
           this.$store.commit('setNewsResult',newsArr[i])
         }
-        // var ok = newsArr[i].desc.includes(this.palavra)
-        // var ok1 = newsArr[i].content.includes(this.palavra)
-        // if (ok || ok1){
-        //   this.$store.commit('setNewsResult',newsArr[i])
-        // }
       }
       if (this.$route.name !== 'resultadopesquisa'){
         this.$router.push({name: 'resultadopesquisa'})
       }
-
     },
     signOut() {
       firebase

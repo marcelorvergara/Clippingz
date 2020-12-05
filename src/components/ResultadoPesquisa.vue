@@ -7,7 +7,7 @@
           img-alt="Image"
           img-top>
         <b-card-text>
-          {{ news.desc }}
+          <span>{{ news.desc }}</span>
         </b-card-text>
         <template #footer>
           <small class="text-muted"> {{ news.dataMat }}</small>
@@ -20,15 +20,11 @@
     <b-card-group columns v-if="!$store.getters.getNewsResult.length">
       <b-card>
         <b-card-text>
-          Nenhuma notícia encontrada
+          Nenhuma notícia encontrada. Tente outra palavra-chave.
         </b-card-text>
         <b-card-text class="mt-5 text-right">
-          <router-link
-              exact :style="{ cursor: 'grab'}"
-              tag="button" class="card-title btn btn-outline-info" :to="{ name:'lista'}">
-            <b-icon icon="skip-backward-fill"></b-icon>
-            Voltar
-          </router-link>
+          <b-button  variant="dark" @click="$router.go(-1)">
+            <span>Voltar </span><b-icon icon="backspace"></b-icon></b-button>
         </b-card-text>
         <template #footer>
           <small class="text-muted"></small>

@@ -29,10 +29,23 @@
                 ></b-form-radio-group>
               </b-form-group>
               <b-form-group class="text-right mt-3">
-                <b-button @click="pesquisar">Pesquisar
+                <b-form-select v-model="idiomas" :options="optIdiomas"></b-form-select>
+                <template #first>
+                  <b-form-select-option :value="null" disabled>-- Please select an option --</b-form-select-option>
+                </template>
+              </b-form-group>
+              <b-form-group class="text-right mt-3">
+                <b-form-select v-model="numNews" :options="optNumNews"></b-form-select>
+                <template #first>
+                  <b-form-select-option :value="null" disabled>-- Please select an option --</b-form-select-option>
+                </template>
+              </b-form-group>
+              <b-form-group class="text-right mt-3">
+                <b-button @click="pesquisaNews">Pesquisar
                   <b-icon icon="search"></b-icon>
                 </b-button>
               </b-form-group>
+
               <b-form-group class="text-right mt-3" v-if="seleTodas">
                 <b-button @click="slecionarTodasPesquisa" variant="outline-secondary" size="sm">Selecionar Todas</b-button>
               </b-form-group>
@@ -79,22 +92,25 @@
       <b-row class="mt-4 text-right">
         <b-col>
 <!--          inclusão de matérias-->
-          <b-card-group deck columns v-if="lista">
-            <b-card v-for="(news,index) in lista.news" :key="index"
+          <b-card-group deck columns v-if="$store.getters.getNewsTemp">
+            <b-card border-variant="dark" align="left"
+                    v-for="(news,index) in $store.getters.getNewsTemp" :key="index"
                     header-bg-variant="secondary"
                     style="min-width: 254px; max-width: 254px"
                     :header="news.title"
-                    align="center"
                     class="mt-2"
                     header-text-variant="white">
               <b-card-text align="left">{{ news.description}}</b-card-text>
               <b-card-text>
                 <b-form-group label="Selecione para clipping:">
                   <b-form-checkbox
+                      switch
                       name="materia"
                       v-model="materias"
                       :options="news"
-                      :value="news">
+                      :value="news"
+                      v-b-tooltip.hover.rightbottom title="Selecione aqui a matéria para inserção no clipping e depois
+                                      clique no botão Adicionar no final dessa página">
                     Matéria selecionada
                   </b-form-checkbox>
                 </b-form-group>
@@ -103,22 +119,25 @@
           </b-card-group>
 <!--       lista   exclusao-->
           <b-card-group deck columns v-if="excluLista">
-            <b-card v-for="(news,index) in excluLista" :key="index"
+            <b-card border-variant="danger" align="left"
+                    v-for="(news,index) in excluLista" :key="index"
                     header-bg-variant="secondary"
                     style="min-width: 254px; max-width: 254px"
                     :header="news.title"
-                    align="center"
                     class="mt-2"
                     header-text-variant="white">
               <b-card-text align="left">{{ news.desc }}</b-card-text>
               <b-card-text>
                 <b-form-group label="Selecione para excluir:">
                   <b-form-checkbox
+                      switch
                       name="materia"
                       v-model="meteriasExcl"
                       :options="news"
-                      :value="news">
-                    Matéria a ser deletada
+                      :value="news"
+                      v-b-tooltip.hover.rightbottom title="Selecione aqui a matéria para excluir da base de dados e depois
+                                      clique no botão Excluir no final dessa página">
+                    <span class="text-danger">Matéria será excluída <b-icon icon="trash-fill"></b-icon></span>
                   </b-form-checkbox>
                 </b-form-group>
               </b-card-text>
@@ -193,6 +212,34 @@ export default {
 name: "ConfigNews",
   data(){
     return{
+      numNews:null,
+      optNumNews:[
+        {value: null ,text: "Selecione a Quantidade de Notícias"},
+        {value: 5, text: 'Cinco Notícias'},
+        {value: 6, text: 'Seis Notícias'},
+        {value: 7, text: 'Sete Notícias'},
+        {value: 8, text: 'Oito Notícias'},
+        {value: 9, text: 'Nove Notícias'},
+        {value: 10, text: 'Dez Notícias'},
+        {value: 11, text: 'Onze Notícias'},
+        {value: 12, text: 'Doze Notícias'},
+        {value: 13, text: 'Treze Notícias'},
+        {value: 14, text: 'Quatorze Notícias'},
+        {value: 15, text: 'Quinze Notícias'},
+        {value: 100, text: 'Todas as Notícia'},
+      ],
+      idiomas:null,
+      optIdiomas:[
+        {value: null ,text: "Selecione um Idioma"},
+        {value: 'pt' ,text: "Português"},
+        {value: 'de' ,text: "Deutsch"},
+        {value: 'en' ,text: "English"},
+        {value: 'es' ,text: "Español"},
+        {value: 'fr' ,text: "français"},
+        {value: 'it' ,text: "Italiano"},
+        {value: 'nl' ,text: "Nederlands"},
+        {value: 'no' ,text: "Norsk"},
+      ],
       optExclusao:[
         { text:' Selecionar apenas matérias inseridas hoje', value: 'hoje'},
         { text:' Selecionar todas as matérias', value:'todas'}
@@ -228,8 +275,8 @@ name: "ConfigNews",
       this.materias = []
     },
     slecionarTodasPesquisa(){
-      for (let i=0; i< this.lista.news.length; i++){
-        this.materias.push(this.lista.news[i])
+      for (let i=0; i< this.$store.getters.getNewsTemp.length; i++){
+        this.materias.push(this.$store.getters.getNewsTemp[i])
       }
     },
     desmarcarTodasExcluir(){
@@ -264,9 +311,9 @@ name: "ConfigNews",
       this.listaBool = false
       this.excluListaBool = true
       this.excluLista = []
-      this.lista = []
+      this.$store.commit('resetNews')
       if (this.selExclusao === '' || this.selExclusao === null){
-        this.error = 'É necessário inserir um item!'
+        this.error = 'É necessário o período em que as matérias foram inseridas no sistema!'
         this.$refs['my-modal-err'].show()
         this.excluListaBool = false
         this.mostraSelTodas = false;
@@ -311,10 +358,12 @@ name: "ConfigNews",
               });
         }
       }
-
-
     },
     enviaLista(mat){
+      //limpando o TempDB
+      this.$store.dispatch('deletarTempDB',{news: mat, user: this.user.data.email})
+
+      //segue inserção no db
       this.sucesso = '';
       this.error = '';
       const db = firebase.firestore().collection("materias")
@@ -333,7 +382,7 @@ name: "ConfigNews",
             }, { merge: true })
             .then(()=> {
               this.$refs['my-modal'].show()
-              this.lista = [];
+              this.$store.commit('resetNews')
               this.listaBool = false;
               this.seleTodas = false;
               this.palavrachave = '';
@@ -346,7 +395,7 @@ name: "ConfigNews",
             });
       }
     },
-    pesquisar(){
+    pesquisaNews(){
 
       if (this.palavrachave === null || this.palavrachave === '' || this.campoPesquisa ===''){
         this.error = 'É necessário inserir uma palavra para pesquisa e escolher onde a pesquisa será feita!'
@@ -357,10 +406,15 @@ name: "ConfigNews",
         this.listaBool = true
         this.excluListaBool = false
         this.excluLista = []
-        this.lista = []
         this.$store.commit('resetNews')
-        this.$store.dispatch('getNews', {palavra: this.palavrachave, onde: this.campoPesquisa});
+        this.$store.dispatch('getNewsFunctions',
+            {palavra: this.palavrachave,
+                    onde: this.campoPesquisa,
+                    idioma: this.idiomas,
+                    np: this.numNews,
+                    user: this.user.data.email});
         this.lista = this.$store.state.news
+        this.$store.dispatch('getNewsTempDB',{user:this.user.data.email})
       }
     }
   },

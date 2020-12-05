@@ -38,7 +38,7 @@
       <router-link
           exact :style="{ cursor: 'grab'}"
           tag="h5" class="card-title" :to="{ name:'detalhesnews', params:{news: news}}">
-          Clique Aqui para Detalhes
+          <span class="vejamais">Veja Mais</span>
       </router-link>
       </b-carousel-slide>
     </b-carousel>
@@ -93,5 +93,11 @@ export default {
 </script>
 
 <style scoped>
-
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap');
+.vejamais{
+  color: white;
+  text-shadow: 2px 2px 4px #000000;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: bold;
+}
 </style>
