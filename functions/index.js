@@ -2,7 +2,7 @@ const functions = require('firebase-functions');
 const admin = require("firebase-admin");
 
 //buscar notícias na API e guardar no banco
-exports.getNews = functions.https.onRequest((request,res) => {
+exports.getNews = functions.https.onRequest(async(request,res) => {
     const {PubSub} = require(`@google-cloud/pubsub`);
     const pubsub = new PubSub();
     const req = require('request');
@@ -17,10 +17,10 @@ exports.getNews = functions.https.onRequest((request,res) => {
     const id = request.query.id;
     const mp = request.query.np;
     const mpNum = parseInt(mp);
+    // passando o uid para restringir no banco
     const user = request.query.user
 
     var linkApi = (`http://newsapi.org/v2/everything?`+`${od}`+`="`+`${kw}`+`"&language=`+`${id}`+`&from=`+`${data1}`+`&to=`+`${data0}`+`&pageSize=`+ `${mpNum}` +`&apiKey=`);
-    console.log("link", linkApi)
     if (request.method === 'OPTIONS') {
         // Send response to OPTIONS requests
         res.set('Access-Control-Allow-Methods', 'GET');
@@ -28,17 +28,13 @@ exports.getNews = functions.https.onRequest((request,res) => {
         res.set('Access-Control-Max-Age', '3600');
         res.status(204).send('');
     } else {
-        console.log('antes da requisição')
-        let requisicao = reqFunc()
-        return requisicao.then( resul =>{
-            console.log('r: ', resul)
-            res.send('ok ok')
-        })
+        const messageId = await reqFunc()
+        res.send( `id da mensagem: ` + messageId)
     }
-    function reqFunc (){
-        return new Promise(function (resolve,reject){
+
+    async function reqFunc (){
+        return new Promise(await function (resolve,reject){
             req.get(linkApi, (err,res,body) => {
-                console.log('depois da requisição')
                 if (err){
                     console.log("Erro na requisição a API: ", err)
                     reject(err)
@@ -71,7 +67,7 @@ exports.getNews = functions.https.onRequest((request,res) => {
     }
 })
 
-exports.dbNewsTemp = functions.pubsub.topic('database').onPublish((message) => {
+exports.dbNewsTemp = functions.pubsub.topic('database').onPublish(async (message) => {
     const serviceAccount = require('./clippingz.json')
     if (!admin.apps.length){
         admin.initializeApp({
@@ -81,9 +77,9 @@ exports.dbNewsTemp = functions.pubsub.topic('database').onPublish((message) => {
     }
     const { v4: uuidv4 } = require('uuid');
     console.log('ínicio pubsub')
-    let user = null;
-    let mpNum = null;
-    let body = null;
+    var user = null;
+    var mpNum = null;
+    var body = null;
     try {
         user = message.json.user;
         mpNum = message.json.mpNum;
@@ -93,51 +89,53 @@ exports.dbNewsTemp = functions.pubsub.topic('database').onPublish((message) => {
     }
 
     var totRestults;
-    var newsTemp = [];
     //listar o que temos de news no rep temporário de notícias
     let db = admin.firestore();
-    console.log('antes do user coll')
-    return db.collection(user)
+    return await db.collection(user)
         .get()
         .then((querySnapshot)  => {
-            console.log("Listando para deletar")
-            querySnapshot.forEach((doc) => {
-                newsTemp.push(doc.data())
-            })
             //deletar o que temos no banco relativo ao user
             //para limpar (TempDB). Esse banco mostra os resultados
             //de pesquisa
-            for (let i=0; i < newsTemp.length; i++){
-                db.collection(user).doc(newsTemp[i].id).delete()
-                    .then(() => {
-                        console.log("Deletando tempDB!");
-                    })
-                    .catch(function(error) {
-                        console.error("Error removing document: ", error);
-                    })
-            }
+            querySnapshot.forEach((doc) => {
+                let docId = doc.data().id
+                limpaDB(docId)
+            })
+
         })
         .catch(function(error) {
             console.warn("Error getting documents: ", error);
         })
         .then( () => {
             //gravar no banco os resultados da pesquisa de notícias
-            const jsonData = JSON.parse(body)
-            totRestults = jsonData.totalResults;
-            if (totRestults === 0) {
-                console.log("Nenhum resuldado encontrado")
-            } else {
-                if (totRestults >= mpNum) {
-                    totRestults = mpNum;
-                }
-                for (let i=0; i< totRestults; i++){
-                    const uuid = uuidv4();
-                    jsonData.articles[i].id = uuid
-                    inserirMat(jsonData.articles[i],user,uuid)
-                    console.log('Matéria inserida')
-                }
-            }
+            inserirNews()
         })
+    async function inserirNews(){
+        const jsonData = JSON.parse(body)
+        totRestults = jsonData.totalResults;
+        if (totRestults === 0) {
+            console.log("Nenhum resuldado encontrado")
+        } else {
+            if (totRestults >= mpNum) {
+                totRestults = mpNum;
+            }
+            for (let i=0; i< totRestults; i++){
+                const uuid = uuidv4();
+                jsonData.articles[i].id = uuid
+                await  inserirMat(jsonData.articles[i],user,uuid)
+                console.log('Matéria inserida')
+            }
+        }
+    }
+    async function limpaDB(docId){
+            await db.collection(user).doc(docId).delete()
+                .then(() => {
+                    console.log("Deletando tempDB!");
+                })
+                .catch(function(error) {
+                    console.error("Error removing document: ", error);
+                })
+    }
     async function inserirMat(mat,user,uuid){
         let db = admin.firestore();
         return await db.collection(user).doc(uuid).set(mat);

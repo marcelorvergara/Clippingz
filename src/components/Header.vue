@@ -1,9 +1,9 @@
 <template>
   <div>
-    <b-navbar toggleable="sm" type="light" variant="light">
+    <b-navbar toggleable="sm" type="dark" variant="secondary">
       <b-navbar-toggle target="nav-text-collapse"></b-navbar-toggle>
 
-      <b-navbar-brand to="/">Clippingz</b-navbar-brand>
+      <b-navbar-brand to="/">Clippingz <span class="version">v.1</span></b-navbar-brand>
 
       <b-collapse id="nav-text-collapse" is-nav>
         <b-navbar-nav>
@@ -16,7 +16,7 @@
           <b-input-group size="sm" prepend="Notícias">
             <b-form-input autocomplete="off" v-model="palavra"></b-form-input>
             <b-input-group-append>
-              <b-button size="sm" text="Ok" variant="" @click="pesquisaNews">Pesquisar</b-button>
+              <b-button size="sm" text="Ok" variant="primary" @click="pesquisaNews">Pesquisar</b-button>
             </b-input-group-append>
           </b-input-group>
         </b-navbar-nav>
@@ -64,9 +64,11 @@ export default {
           .auth()
           .signOut()
           .then(() => {
-            this.$router.replace({
-              name: "lista"
-            });
+            if (this.$route.name !== 'lista'){
+              this.$router.replace({
+                name: "lista"
+              });
+            }
           });
     }
   },
@@ -79,5 +81,8 @@ export default {
 </script>
 
 <style scoped>
-
+.version{
+  font-family: monospace;
+  font-size: 0.4em;
+}
 </style>

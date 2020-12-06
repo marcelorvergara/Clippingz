@@ -1,7 +1,7 @@
 const state = {
     user: {
         loggedIn: false,
-        data: null
+        data: null,
     }
 }
 
@@ -28,11 +28,13 @@ const mutations = {
 
 const actions ={
     fetchUser({ commit }, user) {
+        //se usuário logado
         commit("SET_LOGGED_IN", user !== null);
         if (user) {
             commit("SET_USER", {
                 displayName: user.displayName,
-                email: user.email
+                email: user.email,
+                uid: user.uid
             });
         } else {
             commit("SET_USER", null);

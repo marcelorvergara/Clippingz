@@ -9,16 +9,12 @@ const state = {
 }
 
 const  getters = {
-    allNews: state => state.news,
     getNewsLista: state => state.newsLista,
     getNewsResult: state => state.newsResult,
     getNewsTemp: state => state.newsTemp
 }
 
 const mutations = {
-    setNews(state,news){
-        state.news = news
-    },
     resetNews(state){
         state.news = []
     },
@@ -54,9 +50,11 @@ const actions ={
         //prod
         // const getUrl = encodeURI(`https://us-central1-clippingz.cloudfunctions.net/getNews${pchave}${onde}${idioma}${numPub}${user}`)
         //dev
-         const getUrl = encodeURI(`http://localhost:5001/clippingz/us-central1/getNews${pchave}${onde}${idioma}${numPub}${user}`)
+        const getUrl = encodeURI(`http://localhost:5001/clippingz/us-central1/getNews${pchave}${onde}${idioma}${numPub}${user}`)
         // eslint-disable-next-line no-unused-vars
-         await axios.get (getUrl)
+        await axios.get (getUrl).then(function(resp){
+             console.log('fim', resp)
+         })
 
     },
     //listener para apresentar os resultados na pag. de configuração de notícias
@@ -68,16 +66,6 @@ const actions ={
                 context.commit('setNewsTemp',doc.data())
             });
         });
-    },
-    async deletarTempDB(context,payload) {
-        const db = firebase.firestore().collection(payload.user)
-        context.commit('resetNewsTemp')
-        for (let i = 0; i < payload.news.length; i++) {
-            db.doc(payload.news[i].id).delete()
-                .then(() => {
-                    console.log("Deletando o temp DB!");
-                })
-        }
     }
 }
 

@@ -6,7 +6,8 @@
         <b-card no-body
                 header="Página de Login do Acesso Restrito"
                 align="left"
-                bg-variant="">
+                header-bg-variant="secondary"
+                header-text-variant="white">
           <div class="card-body">
             <b-alert v-if="sucesso" show="5" variant="success" dismissible>{{sucesso}}</b-alert >
             <b-alert v-if="error" show="10" variant="danger" dismissible>{{error}}</b-alert >

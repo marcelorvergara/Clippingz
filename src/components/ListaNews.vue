@@ -13,7 +13,7 @@
           lugar a notícia inserida.
         </b-card-text>
         <b-card-text class="d-flex justify-content-center mb-3">
-          <b-spinner variant="danger" label="Loading..." style="width: 10rem; height: 10rem;" type="grow"></b-spinner>
+          <b-spinner variant="dark" label="Loading..." style="width: 10rem; height: 10rem;" type="grow"></b-spinner>
         </b-card-text>
       </b-card>
     <b-carousel

@@ -1,14 +1,20 @@
 <template>
   <div>
     <b-container class="container-fluid">
+      <b-card no-body
+              class="mt-3 text-center"
+              header="Acesso Restrito"
+              header-bg-variant="secondary"
+              header-text-variant="white"
+      >
       <b-row v-if="user.data">
         <b-col style="min-width: 260px" class="mt-2">
           <b-card no-body
                   style="min-height: 360px"
                   header="Pesquisa de Notícias"
-                  header-bg-variant="light"
+                  header-bg-variant="secondary"
+                  header-text-variant="white"
                   >
-
             <div class="card-body">
               <b-form-group
                   required
@@ -23,7 +29,7 @@
                   label="Onde pesquisar nas notícias:"
                   label-align-sm="left" class="mt-3">
                 <b-form-radio-group
-                    class="pt-2"
+                    class="pt-2 text-left"
                     :options="options"
                     v-model="campoPesquisa"
                 ></b-form-radio-group>
@@ -59,8 +65,9 @@
           <b-card no-body
                   style="min-height: 360px"
                   header="Excluir Notícias"
-                  header-bg-variant="light">
-            <div class="card-body">
+                  header-bg-variant="secondary"
+                  header-text-variant="white">
+            <div class="card-body text-left">
 
               <b-form-group label="Selecione as matérias para exclusão:">
                 <b-form-radio-group
@@ -200,6 +207,7 @@
         </div>
         <b-button class="mt-3" variant="outline-dark" block @click="$bvModal.hide('modalerr')">Fechar</b-button>
       </b-modal>
+      </b-card>
     </b-container>
   </div>
 </template>
@@ -306,6 +314,7 @@ name: "ConfigNews",
       }
     },
     pesquisarExcluir(){
+      this.$store.commit('resetNewsTemp')
       this.seleTodas = false;
       this.mostraSelTodas = true;
       this.listaBool = false
@@ -361,7 +370,8 @@ name: "ConfigNews",
     },
     enviaLista(mat){
       //limpando o TempDB
-      this.$store.dispatch('deletarTempDB',{news: mat, user: this.user.data.email})
+      // limpeza ocorrerá pelo serviço
+      // this.$store.dispatch('deletarTempDB',{news: mat, user: this.user.data.email})
 
       //segue inserção no db
       this.sucesso = '';
@@ -396,7 +406,7 @@ name: "ConfigNews",
       }
     },
     pesquisaNews(){
-
+      //enviando this.user.data.uid para restringir acesso no banco
       if (this.palavrachave === null || this.palavrachave === '' || this.campoPesquisa ===''){
         this.error = 'É necessário inserir uma palavra para pesquisa e escolher onde a pesquisa será feita!'
         this.$refs['my-modal-err'].show()
@@ -412,9 +422,9 @@ name: "ConfigNews",
                     onde: this.campoPesquisa,
                     idioma: this.idiomas,
                     np: this.numNews,
-                    user: this.user.data.email});
+                    user: this.user.data.uid});
         this.lista = this.$store.state.news
-        this.$store.dispatch('getNewsTempDB',{user:this.user.data.email})
+        this.$store.dispatch('getNewsTempDB',{user:this.user.data.uid})
       }
     }
   },
