@@ -1,23 +1,21 @@
 import axios from 'axios'
-import firebase from "firebase/app"
+import firebase from 'firebase';
 
 const state = {
-    news:[],
     newsLista: [],
     newsResult:[],
-    newsTemp:[]
+    newsTemp:[],
+    progress: false
 }
 
 const  getters = {
     getNewsLista: state => state.newsLista,
     getNewsResult: state => state.newsResult,
-    getNewsTemp: state => state.newsTemp
+    getNewsTemp: state => state.newsTemp,
+    getProgress: state => state.progress
 }
 
 const mutations = {
-    resetNews(state){
-        state.news = []
-    },
     setNewsLista(state,newsLista){
         state.newsLista.push(newsLista)
     },
@@ -35,6 +33,9 @@ const mutations = {
     },
     resetNewsTemp(state){
         state.newsTemp = []
+    },
+    setProgress(state,value){
+        state.progress = value
     }
 }
 
@@ -46,26 +47,77 @@ const actions ={
         const onde = `&od=`+`${payload.onde}`;
         const idioma = `&id=`+`${payload.idioma}`;
         const numPub = `&np=`+`${payload.np}`;
-        const user = `&user=` + `${payload.user}`
         //prod
         // const getUrl = encodeURI(`https://us-central1-clippingz.cloudfunctions.net/getNews${pchave}${onde}${idioma}${numPub}${user}`)
         //dev
-        const getUrl = encodeURI(`http://localhost:5001/clippingz/us-central1/getNews${pchave}${onde}${idioma}${numPub}${user}`)
+        const getUrl = encodeURI(`http://localhost:5001/clippingz/us-central1/getNews${pchave}${onde}${idioma}${numPub}`)
         // eslint-disable-next-line no-unused-vars
         await axios.get (getUrl).then(function(resp){
-             console.log('fim', resp)
-         })
-
-    },
-    //listener para apresentar os resultados na pag. de configuração de notícias
-    async getNewsTempDB(context,payload){
-        const db = firebase.firestore().collection(payload.user)
-        db.onSnapshot(function(querySnapshot) {
             context.commit('resetNewsTemp')
-            querySnapshot.forEach(function(doc) {
-                context.commit('setNewsTemp',doc.data())
+                for (let i=0; i < resp.data.articles.length; i++){
+                    context.commit('setNewsTemp',resp.data.articles[i])
+                }
+                context.commit('setProgress',false)
+             })
+    },
+    async excluitMatDB(context, payload) {
+        const materiasExcl = payload.materiasExcl
+        const db = firebase.firestore()
+        for (let i = 0; i < materiasExcl.length; i++) {
+            var matTit = materiasExcl[i].title
+            var materia = await db.collection('materias')
+                    .where('title', '==', matTit);
+            materia.get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    doc.ref.delete();
+                });
+
             });
-        });
+        }
+    },
+    async getNewsDB(context){
+        //busca notícias no db. Será usado na tela principal
+        context.commit('resetNewsLista')
+        const dataMat = new Date().toLocaleDateString()
+        // eslint-disable-next-line no-unused-vars
+        const db = await firebase.firestore().collection("materias")
+            .where('dataMat','==',dataMat)
+            .get()
+            .then((querySnapshot) =>{
+                querySnapshot.forEach((doc) => {
+                    context.commit('setNewsLista',doc.data())
+                });
+            })
+            .catch(function(error) {
+                console.error("Error getting documents: ", error);
+            });
+    },
+    async pesquisaNewsDB(context,payload){
+        //pegando as notícias do banco somente do dia atual para não pesar a consulta
+        //insere o resultado no listaMaterias e a pesquisa é feita pelos campos descrição e titulo
+        const palavraChave = payload.palavra;
+        var listaMaterias = [];
+        const dataMat = new Date().toLocaleDateString()
+        // eslint-disable-next-line no-unused-vars
+        const db = await firebase.firestore().collection("materias")
+            .where('dataMat','==',dataMat)
+            .get()
+            .then((querySnapshot) =>{
+                querySnapshot.forEach((doc) => {
+                    listaMaterias.push(doc.data())
+                });
+
+                for (let i = 0; i < listaMaterias.length; i++){
+                    if (listaMaterias[i].desc.toLowerCase().includes(palavraChave.toLowerCase()) ||
+                        listaMaterias[i].title.toLowerCase().includes(palavraChave.toLowerCase()))
+                    {
+                        context.commit('setNewsResult',listaMaterias[i])
+                    }
+                }
+            })
+            .catch(function(error) {
+                console.error("Error getting documents: ", error);
+            });
     }
 }
 

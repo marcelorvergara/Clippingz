@@ -3,7 +3,7 @@
     <b-navbar toggleable="sm" type="dark" variant="secondary">
       <b-navbar-toggle target="nav-text-collapse"></b-navbar-toggle>
 
-      <b-navbar-brand to="/">Clippingz <span class="version">v.1</span></b-navbar-brand>
+      <b-navbar-brand to="/">Clippingz <span class="version">v.3</span></b-navbar-brand>
 
       <b-collapse id="nav-text-collapse" is-nav>
         <b-navbar-nav>
@@ -43,18 +43,11 @@ export default {
   },
   methods:{
     pesquisaNews(){
+      //reset da lista de pesquisa anterior
       this.$store.commit('resetNewsResult')
-      const newsArr = this.$store.getters.getNewsLista
-      console.log(newsArr)
-      for (let i = 0; i < newsArr.length; i++){
-        console.log(i)
-        if (newsArr[i].desc.toLowerCase().includes(this.palavra.toLowerCase()) ||
-              newsArr[i].content.toLowerCase().includes(this.palavra.toLowerCase()) ||
-              newsArr[i].title.toLowerCase().includes(this.palavra.toLowerCase()))
-        {
-          this.$store.commit('setNewsResult',newsArr[i])
-        }
-      }
+      //buscar no banco de dados
+      this.$store.dispatch('pesquisaNewsDB',{palavra:this.palavra})
+
       if (this.$route.name !== 'resultadopesquisa'){
         this.$router.push({name: 'resultadopesquisa'})
       }

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <b-progress v-if="$store.getters.getProgress" :value="this.numNews" :max="$store.getters.getNewsTemp.length" animated></b-progress>
     <b-container class="container-fluid">
       <b-card no-body
               class="mt-3 text-center"
@@ -37,13 +38,13 @@
               <b-form-group class="text-right mt-3">
                 <b-form-select v-model="idiomas" :options="optIdiomas"></b-form-select>
                 <template #first>
-                  <b-form-select-option :value="null" disabled>-- Please select an option --</b-form-select-option>
+                  <b-form-select-option :value="null" disabled>-- Favor selecionar uma opção --</b-form-select-option>
                 </template>
               </b-form-group>
               <b-form-group class="text-right mt-3">
                 <b-form-select v-model="numNews" :options="optNumNews"></b-form-select>
                 <template #first>
-                  <b-form-select-option :value="null" disabled>-- Please select an option --</b-form-select-option>
+                  <b-form-select-option :value="null" disabled>-- Favor selecionar uma opção --</b-form-select-option>
                 </template>
               </b-form-group>
               <b-form-group class="text-right mt-3">
@@ -107,6 +108,7 @@
                     :header="news.title"
                     class="mt-2"
                     header-text-variant="white">
+
               <b-card-text align="left">{{ news.description}}</b-card-text>
               <b-card-text>
                 <b-form-group label="Selecione para clipping:">
@@ -296,31 +298,28 @@ name: "ConfigNews",
       }
     },
     excluirMat(materiasExcl){
-      const db = firebase.firestore()
-      for (let i=0; i < materiasExcl.length; i++){
-        var matTit = materiasExcl[i].title
-        var materia =
-            db.collection('materias')
-            .where('title','==',matTit);
-        materia.get().then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            doc.ref.delete();
-            this.$refs['my-modal-exc'].show();
-            this.excluLista = [];
-            this.excluListaBool = false;
-            this.mostraSelTodas = false;
-          });
-        });
-      }
-    },
+      if (materiasExcl.length === 0){
+        this.error = 'É necessário selecionar alguma notícia para excluir!'
+        this.$refs['my-modal-err'].show()
+      }else{
+          this.$store.dispatch('excluitMatDB',{materiasExcl: materiasExcl})
+          this.$refs['my-modal-exc'].show();
+          this.excluLista = [];
+          this.excluListaBool = false;
+          this.mostraSelTodas = false;
+          this.selExclusao = ''
+        }
+      },
     pesquisarExcluir(){
+      //limpar a tela
       this.$store.commit('resetNewsTemp')
+      //botões de listar e desmarcar todas
       this.seleTodas = false;
       this.mostraSelTodas = true;
       this.listaBool = false
       this.excluListaBool = true
+      //limpando a lista anterior
       this.excluLista = []
-      this.$store.commit('resetNews')
       if (this.selExclusao === '' || this.selExclusao === null){
         this.error = 'É necessário o período em que as matérias foram inseridas no sistema!'
         this.$refs['my-modal-err'].show()
@@ -369,62 +368,65 @@ name: "ConfigNews",
       }
     },
     enviaLista(mat){
-      //limpando o TempDB
-      // limpeza ocorrerá pelo serviço
-      // this.$store.dispatch('deletarTempDB',{news: mat, user: this.user.data.email})
-
-      //segue inserção no db
-      this.sucesso = '';
-      this.error = '';
-      const db = firebase.firestore().collection("materias")
-      const dataMat = new Date().toLocaleDateString()
-      //montar o objeto
-      for (let i=0; i < mat.length; i++){
-        db.doc()
-            .set({
-              dataMat: dataMat,
-              title:mat[i].title,
-              desc:mat[i].description,
-              content:mat[i].content,
-              urlToImage:mat[i].urlToImage,
-              url:mat[i].url,
-              author:mat[i].author
-            }, { merge: true })
-            .then(()=> {
-              this.$refs['my-modal'].show()
-              this.$store.commit('resetNews')
-              this.listaBool = false;
-              this.seleTodas = false;
-              this.palavrachave = '';
-              this.campoPesquisa = ''
-
-            })
-            .catch((error)=> {
-              this.error = error
-              this.$refs['my-modal-err'].show()
-            });
+      if (mat.length === 0){
+        this.error = 'É necessário selecionar alguma notícia para insersão!'
+        this.$refs['my-modal-err'].show()
+      }else {
+        //segue inserção no db
+        this.sucesso = '';
+        this.error = '';
+        const db = firebase.firestore().collection("materias")
+        const dataMat = new Date().toLocaleDateString()
+        //montar o objeto
+        for (let i=0; i < mat.length; i++){
+          db.doc()
+              .set({
+                dataMat: dataMat,
+                title:mat[i].title,
+                desc:mat[i].description,
+                content:mat[i].content,
+                urlToImage:mat[i].urlToImage,
+                url:mat[i].url,
+                author:mat[i].author
+              }, { merge: true })
+              .then(()=> {
+                this.$refs['my-modal'].show()
+                //limpando a tela
+                this.listaBool = false;
+                this.seleTodas = false;
+                this.palavrachave = '';
+                this.campoPesquisa = ''
+                this.$store.commit('resetNewsTemp')
+              })
+              .catch((error)=> {
+                this.error = error
+                this.$refs['my-modal-err'].show()
+              });
+        }
       }
     },
     pesquisaNews(){
+      this.$store.commit('setProgress', true)
       //enviando this.user.data.uid para restringir acesso no banco
       if (this.palavrachave === null || this.palavrachave === '' || this.campoPesquisa ===''){
         this.error = 'É necessário inserir uma palavra para pesquisa e escolher onde a pesquisa será feita!'
         this.$refs['my-modal-err'].show()
       }else {
+        //botões de seleção exclusão
         this.mostraSelTodas = false
+        //botões de seleção inclusão de notícias
         this.seleTodas = true
+        //botões para inclusão e exclusão
         this.listaBool = true
         this.excluListaBool = false
+        //limpa lista de exclusão se estiver na tela
         this.excluLista = []
-        this.$store.commit('resetNews')
+        //função que irá ger o get na API
         this.$store.dispatch('getNewsFunctions',
             {palavra: this.palavrachave,
                     onde: this.campoPesquisa,
                     idioma: this.idiomas,
-                    np: this.numNews,
-                    user: this.user.data.uid});
-        this.lista = this.$store.state.news
-        this.$store.dispatch('getNewsTempDB',{user:this.user.data.uid})
+                    np: this.numNews});
       }
     }
   },
