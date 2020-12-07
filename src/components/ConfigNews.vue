@@ -26,7 +26,7 @@
                   label="Palavra-Chave"
                   label-for="palavra"
                   label-align-sm="left" class="mb-0">
-                <b-form-input id="palavra" v-model="palavrachave" trim ></b-form-input>
+                <b-form-input id="palavra" v-model="palavrachave" trim autocomplete="off" ></b-form-input>
               </b-form-group>
               <b-form-group
                   label="Onde pesquisar nas notícias:"
@@ -109,7 +109,7 @@
                     header-bg-variant="secondary"
                     style="min-width: 254px; max-width: 254px"
                     :header="news.title"
-                    class="mt-2"
+                    class="mt-1"
                     header-text-variant="white">
 
               <b-card-text align="left">{{ news.description}}</b-card-text>
@@ -123,7 +123,8 @@
                       :value="news"
                       v-b-tooltip.hover.rightbottom title="Selecione aqui a matéria para inserção no clipping e depois
                                       clique no botão Adicionar no final dessa página">
-                    Matéria selecionada
+                    <b-card-text v-if="materias.find(a => a.title === news.title)" v-text="inserida" style="color: #007bff"></b-card-text>
+                    <b-card-text v-else v-text="padrao"></b-card-text>
                   </b-form-checkbox>
                 </b-form-group>
               </b-card-text>
@@ -149,7 +150,9 @@
                       :value="news"
                       v-b-tooltip.hover.rightbottom title="Selecione aqui a matéria para excluir da base de dados e depois
                                       clique no botão Excluir no final dessa página">
-                    <span class="text-danger">Matéria será excluída <b-icon icon="trash-fill"></b-icon></span>
+                    <b-card-text v-if="meteriasExcl.find(a => a.title === news.title)" v-text="inserida" style="color: #ff0000">
+                    </b-card-text>
+                    <b-card-text v-else v-text="padrao"></b-card-text>
                   </b-form-checkbox>
                 </b-form-group>
               </b-card-text>
@@ -157,12 +160,12 @@
           </b-card-group>
         </b-col>
       </b-row>
-      <b-row class="mt-2 mb-5" v-if="listaBool">
+      <b-row class="mt-2 mb-1" v-if="listaBool">
         <b-col>
           <b-button block @click="enviaLista(materias)">Adicionar <b-icon icon="journal-plus"></b-icon></b-button>
         </b-col>
       </b-row>
-      <b-row class="mt-2 mb-5" v-if="excluListaBool">
+      <b-row class="mt-2 mb-1" v-if="excluListaBool">
         <b-col>
           <b-button block @click="excluirMat(meteriasExcl)">Excluir <b-icon icon="trash"> </b-icon></b-button>
         </b-col>
@@ -236,6 +239,8 @@ export default {
 name: "ConfigNews",
   data(){
     return{
+      padrao:'Clique para selecionar',
+      inserida:'Matéria selecionada',
       numNews:null,
       optNumNews:[
         {value: null ,text: "Selecione a Quantidade de Notícias"},
@@ -482,7 +487,7 @@ name: "ConfigNews",
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
   .space {
-    padding: 2 rem;
+    margin: 0 20px 0  20px;
   }
 }
 </style>
