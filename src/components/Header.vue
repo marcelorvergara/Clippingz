@@ -3,7 +3,7 @@
     <b-navbar toggleable="sm" type="dark" variant="secondary">
       <b-navbar-toggle target="nav-text-collapse"></b-navbar-toggle>
 
-      <b-navbar-brand to="/">Clippingz <span class="version">v.3</span></b-navbar-brand>
+      <b-navbar-brand to="/">Clippingz <span class="version">v3.1</span></b-navbar-brand>
 
       <b-collapse id="nav-text-collapse" is-nav>
         <b-navbar-nav>
@@ -16,7 +16,7 @@
           <b-input-group size="sm" prepend="Notícias">
             <b-form-input autocomplete="off" v-model="palavra"></b-form-input>
             <b-input-group-append>
-              <b-button size="sm" text="Ok" variant="primary" @click="pesquisaNews">Pesquisar</b-button>
+              <b-button size="sm" text="Ok" variant="primary" @click="pesquisaNews" id="pesquisar">Pesquisar <b-icon icon="search"></b-icon></b-button>
             </b-input-group-append>
           </b-input-group>
         </b-navbar-nav>
@@ -73,9 +73,15 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+@import "../../node_modules/bootstrap/scss/functions";
+@import "../styles/variables";
+
 .version{
   font-family: monospace;
   font-size: 0.4em;
+}
+#pesquisar{
+  background-color: #035dbd;
 }
 </style>

@@ -6,6 +6,7 @@ exports.getNews = functions.https.onRequest(async(request,res) => {
 
     res.set('Access-Control-Allow-Origin', '*');
 
+    //só pegar notícias recentes
     const data0 = hoje();
     const data1 = ontem();
     //pegando os parâmtros passados no get URL

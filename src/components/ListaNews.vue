@@ -17,6 +17,7 @@
       </b-card-text>
     </b-card>
     <b-carousel
+        class="carousel"
         v-else
         id="carousel"
         v-model="slide"
@@ -85,5 +86,9 @@ export default {
   text-shadow: 2px 2px 4px #000000;
   font-family: 'Source Sans Pro', sans-serif;
   font-weight: bold;
+}
+.carousel {
+  border-radius: 10px 10px 10px 10px;
+  overflow: hidden;
 }
 </style>

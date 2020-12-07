@@ -1,17 +1,19 @@
 <template>
   <div>
     <b-progress v-if="$store.getters.getProgress" :value="this.numNews" :max="$store.getters.getNewsTemp.length" animated></b-progress>
-    <b-container class="container-fluid">
+    <b-container fluid="sm">
       <b-card no-body
+              id="header"
               class="mt-3 text-center"
               header="Acesso Restrito"
               header-bg-variant="secondary"
               header-text-variant="white"
+              style="max-width: 1324px"
       >
       <b-row v-if="user.data">
-        <b-col style="min-width: 260px" class="mt-2">
+        <b-col style="min-width: 260px" class="mt-2 space">
           <b-card no-body
-                  style="min-height: 360px"
+                  style="min-height: 360px;"
                   header="Pesquisa de Notícias"
                   header-bg-variant="secondary"
                   header-text-variant="white"
@@ -47,7 +49,7 @@
                   <b-form-select-option :value="null" disabled>-- Favor selecionar uma opção --</b-form-select-option>
                 </template>
               </b-form-group>
-              <b-form-group class="text-right mt-3">
+              <b-form-group class="text-right mt-5">
                 <b-button @click="pesquisaNews">Pesquisar
                   <b-icon icon="search"></b-icon>
                 </b-button>
@@ -62,9 +64,10 @@
             </div>
           </b-card>
         </b-col>
-        <b-col style="min-width: 260px" class="mt-2">
+        <b-col style="min-width: 230px" class="mt-2">
           <b-card no-body
-                  style="min-height: 360px"
+                  class="space"
+                  style="min-height: 240px"
                   header="Excluir Notícias"
                   header-bg-variant="secondary"
                   header-text-variant="white">
@@ -76,7 +79,7 @@
                     v-model="selExclusao"
                     :options="optExclusao"
                     name="radio-options"></b-form-radio-group>
-                <b-form-group class="text-right mt-3">
+                <b-form-group class="text-right mt-5">
                   <b-button @click="pesquisarExcluir">Listar
                     <b-icon icon="card-list"></b-icon>
                   </b-button>
@@ -209,6 +212,17 @@
         </div>
         <b-button class="mt-3" variant="outline-dark" block @click="$bvModal.hide('modalerr')">Fechar</b-button>
       </b-modal>
+<!--model sem notícias-->
+        <b-modal id="modalsn" ref="my-modal-sn" hide-footer>
+          <template #modal-title>
+            <b-icon icon="exclamation-triangle-fill" scale="2" variant="warning"></b-icon>
+            <span class="m-3">Pesquisa sem Resultados</span>
+          </template>
+          <div class="d-block text-center">
+            <h5> A pesquisa não retornou notícias para a <br /> palavra-chave {{ palavrachave }}</h5>
+          </div>
+          <b-button class="mt-3" variant="outline-dark" block @click="$bvModal.hide('modalsn')">Fechar</b-button>
+        </b-modal>
       </b-card>
     </b-container>
   </div>
@@ -339,6 +353,7 @@ name: "ConfigNews",
                   });
                 }else {
                   this.$refs['my-modal-no-docs'].show()
+                  this.excluListaBool = false
                 }
               })
               .catch(function(error) {
@@ -426,8 +441,16 @@ name: "ConfigNews",
             {palavra: this.palavrachave,
                     onde: this.campoPesquisa,
                     idioma: this.idiomas,
-                    np: this.numNews});
+                    np: this.numNews})
+            .then(response => {
+              if (response === 0){
+                  this.$refs['my-modal-sn'].show()
+              }
+             }, error => {
+              console.error(error)
+            })
       }
+
     }
   },
   computed:{
@@ -445,6 +468,21 @@ name: "ConfigNews",
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+#header{
+  background-color: #b8b8b8;
+}
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+  .space {
+    margin: 0 20px 0  20px;
+  }
+}
 
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+  .space {
+    padding: 2 rem;
+  }
+}
 </style>

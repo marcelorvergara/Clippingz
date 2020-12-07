@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="app">
     <Header></Header>
     <router-view></router-view>
   </div>
@@ -16,6 +16,10 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss">
+@import "styles/custom-bootstrap";
+#app{
+  min-height: 1440px;
+  background-color: #d5d5d5;
+}
 </style>

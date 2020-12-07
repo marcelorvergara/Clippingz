@@ -2,9 +2,13 @@ import axios from 'axios'
 import firebase from 'firebase';
 
 const state = {
+    //lista da tela principal
     newsLista: [],
+    //lista com resultados de pesquisa por notícias no Header
     newsResult:[],
+    //lista com resultados de pesquisa por notícias para config. do clipping
     newsTemp:[],
+    //barra de progresso quando a pesquisa vai na API
     progress: false
 }
 
@@ -12,7 +16,7 @@ const  getters = {
     getNewsLista: state => state.newsLista,
     getNewsResult: state => state.newsResult,
     getNewsTemp: state => state.newsTemp,
-    getProgress: state => state.progress
+    getProgress: state => state.progress,
 }
 
 const mutations = {
@@ -39,26 +43,35 @@ const mutations = {
     }
 }
 
-const actions ={
+const actions = {
     //chama uma function fire para inserir no banco as notícias pesquisadas
     //conforme os parâmetros passados no payload
-    async getNewsFunctions(context, payload){
-        const pchave = encodeURI(`?pc=`+`${payload.palavra}`);
-        const onde = `&od=`+`${payload.onde}`;
-        const idioma = `&id=`+`${payload.idioma}`;
-        const numPub = `&np=`+`${payload.np}`;
-        //prod
-        // const getUrl = encodeURI(`https://us-central1-clippingz.cloudfunctions.net/getNews${pchave}${onde}${idioma}${numPub}${user}`)
-        //dev
-        const getUrl = encodeURI(`http://localhost:5001/clippingz/us-central1/getNews${pchave}${onde}${idioma}${numPub}`)
-        // eslint-disable-next-line no-unused-vars
-        await axios.get (getUrl).then(function(resp){
-            context.commit('resetNewsTemp')
+    getNewsFunctions(context, payload){
+        return new Promise((resolve, reject) => {
+            const pchave = encodeURI(`?pc=`+`${payload.palavra}`);
+            const onde = `&od=`+`${payload.onde}`;
+            const idioma = `&id=`+`${payload.idioma}`;
+            const numPub = `&np=`+`${payload.np}`;
+            //prod
+            // const getUrl = encodeURI(`https://us-central1-clipping-z.cloudfunctions.net/getNews${pchave}${onde}${idioma}${numPub}${user}`)
+            //dev
+            const getUrl = encodeURI(`http://localhost:5001/clipping-z/us-central1/getNews${pchave}${onde}${idioma}${numPub}`)
+            var totResult;
+            // eslint-disable-next-line no-unused-vars
+            axios.get (getUrl).then(function(resp){
+                totResult = resp.data.articles.length
+                context.commit('resetNewsTemp')
                 for (let i=0; i < resp.data.articles.length; i++){
                     context.commit('setNewsTemp',resp.data.articles[i])
                 }
                 context.commit('setProgress',false)
-             })
+            }).then(response => {
+                response
+                resolve(totResult)
+            }, error => {
+                reject(error)
+            })
+        })
     },
     async excluitMatDB(context, payload) {
         const materiasExcl = payload.materiasExcl
