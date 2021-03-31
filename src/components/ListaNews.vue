@@ -34,8 +34,7 @@
       <b-carousel-slide v-for="(news,index) in this.$store.getters.getNewsLista" :key="index"
                         :caption="news.title"
                         :text="news.description"
-                        :img-src=getIagens(index)
-      >
+                        :img-src=getIagens(index)>
         <router-link
             exact :style="{ cursor: 'grab'}"
             tag="h5" class="card-title" :to="{ name:'detalhesnews', params:{news: news}}">

@@ -3,8 +3,12 @@ import AcessoRestrito from "@/components/AcessoRestrito";
 import ConfigNews from "@/components/ConfigNews";
 import DetalhesNews from "@/components/DetalhesNews";
 import ResultadoPesquisa from "@/components/ResultadoPesquisa";
+import PaginaNaoEncontrada from "@/components/PaginaNaoEncontrada"
 
 export const routes = [
+    {
+        path: "*", component: PaginaNaoEncontrada
+    },
     {
         path: '',
         name: 'lista',

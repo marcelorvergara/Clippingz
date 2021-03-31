@@ -21,7 +21,13 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 Vue.config.productionTip = false
 
 var firebaseConfig = {
-
+  apiKey: "AIzaSyD_9D6EbI1mtCvCbyzUJsRLYH8rE6b4MKc",
+  authDomain: "clipping-z.firebaseapp.com",
+  projectId: "clipping-z",
+  storageBucket: "clipping-z.appspot.com",
+  messagingSenderId: "964065665539",
+  appId: "1:964065665539:web:e949b208b8f37afe466436",
+  measurementId: "G-WEE9GG8HS2"
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);

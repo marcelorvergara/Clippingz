@@ -1,15 +1,14 @@
 <template>
-  <div>
+  <div >
     <b-progress v-if="$store.getters.getProgress" :value="this.numNews" :max="$store.getters.getNewsTemp.length" animated></b-progress>
-    <b-container fluid="sm">
+    <b-container fluid="sm" style="min-width: 1248px">
       <b-card no-body
+              style="min-width: 1148px"
               id="header"
-              class="mt-3 text-center"
+              class="mt-3 text-center full-width"
               header="Acesso Restrito"
               header-bg-variant="secondary"
-              header-text-variant="white"
-              style="max-width: 1324px"
-      >
+              header-text-variant="white">
       <b-row v-if="user.data">
         <b-col style="min-width: 260px" class="mt-2 space">
           <b-card no-body
@@ -100,16 +99,16 @@
       </b-row>
 
 <!--      abaixo o resultado das pesquisas-->
-      <b-row class="mt-4 text-right">
-        <b-col>
+      <b-row class="text-right">
+        <b-col class="d-flex justify-content-center mb-3 mt-3 space" >
 <!--          inclusão de matérias-->
-          <b-card-group deck columns v-if="$store.getters.getNewsTemp">
+          <b-card-group deck columns v-if="$store.getters.getNewsTemp" class="m-1">
             <b-card border-variant="dark" align="left"
                     v-for="(news,index) in $store.getters.getNewsTemp" :key="index"
                     header-bg-variant="secondary"
                     style="min-width: 254px; max-width: 254px"
                     :header="news.title"
-                    class="mt-1"
+                    class="mt-1 mb-1"
                     header-text-variant="white">
 
               <b-card-text align="left">{{ news.description}}</b-card-text>
@@ -123,7 +122,7 @@
                       :value="news"
                       v-b-tooltip.hover.rightbottom title="Selecione aqui a matéria para inserção no clipping e depois
                                       clique no botão Adicionar no final dessa página">
-                    <b-card-text v-if="materias.find(a => a.title === news.title)" v-text="inserida" style="color: #007bff"></b-card-text>
+                    <b-card-text v-if="materias.find(a => a.title === news.title)" v-html="inserida" style="color: #007bff"></b-card-text>
                     <b-card-text v-else v-text="padrao"></b-card-text>
                   </b-form-checkbox>
                 </b-form-group>
@@ -131,13 +130,13 @@
             </b-card>
           </b-card-group>
 <!--       lista   exclusao-->
-          <b-card-group deck columns v-if="excluLista">
+          <b-card-group deck columns v-if="excluLista" class="ml-1">
             <b-card border-variant="danger" align="left"
                     v-for="(news,index) in excluLista" :key="index"
                     header-bg-variant="secondary"
                     style="min-width: 254px; max-width: 254px"
                     :header="news.title"
-                    class="mt-2"
+                    class="mt-1 mb-1"
                     header-text-variant="white">
               <b-card-text align="left">{{ news.desc }}</b-card-text>
               <b-card-text>
@@ -150,7 +149,7 @@
                       :value="news"
                       v-b-tooltip.hover.rightbottom title="Selecione aqui a matéria para excluir da base de dados e depois
                                       clique no botão Excluir no final dessa página">
-                    <b-card-text v-if="meteriasExcl.find(a => a.title === news.title)" v-text="inserida" style="color: #ff0000">
+                    <b-card-text v-if="meteriasExcl.find(a => a.title === news.title)" v-html="inserida" style="color: #ff0000">
                     </b-card-text>
                     <b-card-text v-else v-text="padrao"></b-card-text>
                   </b-form-checkbox>
@@ -160,12 +159,12 @@
           </b-card-group>
         </b-col>
       </b-row>
-      <b-row class="mt-2 mb-1" v-if="listaBool">
+      <b-row class="mt-2 mb-1 ml-1 mr-1" v-if="listaBool">
         <b-col>
           <b-button block @click="enviaLista(materias)">Adicionar <b-icon icon="journal-plus"></b-icon></b-button>
         </b-col>
       </b-row>
-      <b-row class="mt-2 mb-1" v-if="excluListaBool">
+      <b-row class="mt-2 mb-1 ml-1 mr-1" v-if="excluListaBool">
         <b-col>
           <b-button block @click="excluirMat(meteriasExcl)">Excluir <b-icon icon="trash"> </b-icon></b-button>
         </b-col>
@@ -240,7 +239,7 @@ name: "ConfigNews",
   data(){
     return{
       padrao:'Clique para selecionar',
-      inserida:'Matéria selecionada',
+      inserida:'<strong>Matéria selecionada</strong> ',
       numNews:null,
       optNumNews:[
         {value: null ,text: "Selecione a Quantidade de Notícias"},
@@ -340,7 +339,7 @@ name: "ConfigNews",
       //limpando a lista anterior
       this.excluLista = []
       if (this.selExclusao === '' || this.selExclusao === null){
-        this.error = 'É necessário o período em que as matérias foram inseridas no sistema!'
+        this.error = 'É necessário selecionar o período em que as matérias foram inseridas no sistema!'
         this.$refs['my-modal-err'].show()
         this.excluListaBool = false
         this.mostraSelTodas = false;
@@ -395,35 +394,20 @@ name: "ConfigNews",
         //segue inserção no db
         this.sucesso = '';
         this.error = '';
-        const db = firebase.firestore().collection("materias")
-        const dataMat = new Date().toLocaleDateString()
-        //montar o objeto
-        for (let i=0; i < mat.length; i++){
-          db.doc()
-              .set({
-                dataMat: dataMat,
-                title:mat[i].title,
-                desc:mat[i].description,
-                content:mat[i].content,
-                urlToImage:mat[i].urlToImage,
-                url:mat[i].url,
-                author:mat[i].author
-              }, { merge: true })
-              .then(()=> {
-                this.$refs['my-modal'].show()
-                //limpando a tela
-                this.listaBool = false;
-                this.seleTodas = false;
-                this.palavrachave = '';
-                this.campoPesquisa = ''
-                this.$store.commit('resetNewsTemp')
-              })
-              .catch((error)=> {
-                this.error = error
-                this.$refs['my-modal-err'].show()
-              });
+        this.$store.dispatch('inserirNews', {mat: mat}).then(response => {
+          //limpando a tela
+          this.listaBool = false;
+          this.seleTodas = false;
+          this.palavrachave = '';
+          this.campoPesquisa = '';
+          this.$refs['my-modal'].show()
+          response
+        }, error => {
+          this.error = error
+          this.$refs['my-modal-err'].show()
+          console.error(error)
+        })
         }
-      }
     },
     pesquisaNews(){
       this.$store.commit('setProgress', true)
@@ -449,6 +433,7 @@ name: "ConfigNews",
                     np: this.numNews})
             .then(response => {
               if (response === 0){
+                  this.listaBool = false;
                   this.$refs['my-modal-sn'].show()
               }
              }, error => {
@@ -464,6 +449,7 @@ name: "ConfigNews",
     })
   },
   created() {
+  this.$store.commit('resetNewsTemp')
     if (this.user.data == null){
       this.$router.replace({
         name: "acessorestrito"
@@ -480,14 +466,18 @@ name: "ConfigNews",
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
   .space {
-    margin: 0 20px 0  20px;
+    margin: 0 10px 0  10px;
   }
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
   .space {
-    margin: 0 20px 0  20px;
+    margin: 0 10px 0  10px;
   }
 }
+@media only screen and (min-width : 1200px) {
+  .container { max-width: 1500px; }
+}
+
 </style>

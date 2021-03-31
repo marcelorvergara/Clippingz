@@ -3,7 +3,7 @@
     <b-navbar toggleable="sm" type="dark" variant="secondary">
       <b-navbar-toggle target="nav-text-collapse"></b-navbar-toggle>
 
-      <b-navbar-brand to="/">Clippingz <span class="version">v3.1</span></b-navbar-brand>
+      <b-navbar-brand to="/">Clippingz <span class="version">v3.3</span></b-navbar-brand>
 
       <b-collapse id="nav-text-collapse" is-nav>
         <b-navbar-nav>

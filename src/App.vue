@@ -19,7 +19,7 @@ export default {
 <style lang="scss">
 @import "styles/custom-bootstrap";
 #app{
-  min-height: 1440px;
+  min-height: 990px;
   background-color: #d5d5d5;
 }
 </style>

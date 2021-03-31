@@ -44,6 +44,40 @@ const mutations = {
 }
 
 const actions = {
+    inserirNews(context,payload){
+        const news = payload.mat;
+        return new Promise((resolve,reject) =>{
+            inserir(news).then(response => {
+                resolve (response)
+            }, error => {
+                reject (error)
+            })
+      })
+        function inserir (mat){
+            return new Promise((resolve,reject) => {
+                const db = firebase.firestore().collection("materias")
+                const dataMat = new Date().toLocaleDateString()
+                for (let i = 0; i < mat.length; i++) {
+                    db.doc()
+                        .set({
+                            dataMat: dataMat,
+                            title: mat[i].title,
+                            desc: mat[i].description,
+                            content: mat[i].content,
+                            urlToImage: mat[i].urlToImage,
+                            url: mat[i].url,
+                            author: mat[i].author
+                        }, {merge: true})
+                        .then(() => {
+                            resolve('ok')
+                            context.commit('resetNewsTemp')
+                        }, error => {
+                            reject (error)
+                        })
+                }
+            })
+        }
+    },
     //chama uma function fire para inserir no banco as notícias pesquisadas
     //conforme os parâmetros passados no payload
     getNewsFunctions(context, payload){
@@ -53,9 +87,9 @@ const actions = {
             const idioma = `&id=`+`${payload.idioma}`;
             const numPub = `&np=`+`${payload.np}`;
             //prod
-            // const getUrl = encodeURI(`https://us-central1-clipping-z.cloudfunctions.net/getNews${pchave}${onde}${idioma}${numPub}${user}`)
+            const getUrl = encodeURI(`https://us-central1-clipping-z.cloudfunctions.net/getNews${pchave}${onde}${idioma}${numPub}`)
             //dev
-            const getUrl = encodeURI(`http://localhost:5001/clipping-z/us-central1/getNews${pchave}${onde}${idioma}${numPub}`)
+            // const getUrl = encodeURI(`http://localhost:5001/clipping-z/us-central1/getNews${pchave}${onde}${idioma}${numPub}`)
             var totResult;
             // eslint-disable-next-line no-unused-vars
             axios.get (getUrl).then(function(resp){
