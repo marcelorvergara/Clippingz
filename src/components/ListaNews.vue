@@ -32,8 +32,8 @@
         @sliding-end="onSlideEnd"
     >
       <b-carousel-slide v-for="(news,index) in this.$store.getters.getNewsLista" :key="index"
-                        :caption="news.title"
-                        :text="news.description"
+                        :caption="news.titulo"
+                        :text="news.descricao"
                         :img-src=getIagens(index)>
         <router-link
             exact :style="{ cursor: 'grab'}"
@@ -60,7 +60,7 @@ export default {
     //imagem aleatória para o fundo das notícias pagina prinicpal
     //utilização do index para gerar dinamicamente
     getIagens(index){
-      return `https://picsum.photos/1024/480?random=${index}`
+      return `https://picsum.photos/1024/480?grayscale&blur=2&random=${index}`
     },
     // eslint-disable-next-line no-unused-vars
     onSlideStart(slide) {

@@ -1,9 +1,10 @@
 import ListaNews from "@/components/ListaNews";
 import AcessoRestrito from "@/components/AcessoRestrito";
-import ConfigNews from "@/components/ConfigNews";
 import DetalhesNews from "@/components/DetalhesNews";
 import ResultadoPesquisa from "@/components/ResultadoPesquisa";
 import PaginaNaoEncontrada from "@/components/PaginaNaoEncontrada"
+import AcessoRestritoRegistro from "@/components/AcessoRestritoRegistro";
+import RegistroNews from "@/components/RegistroNews";
 
 export const routes = [
     {
@@ -20,11 +21,6 @@ export const routes = [
         component: AcessoRestrito
     },
     {
-        path: '/ConfigNews',
-        name: 'confignews',
-        component: ConfigNews
-    },
-    {
         path: '/DetalhesNews/:news',
         name: 'detalhesnews',
         component: DetalhesNews
@@ -33,5 +29,15 @@ export const routes = [
         path: '/ResultadoPesquisa',
         name: 'resultadopesquisa',
         component: ResultadoPesquisa
+    },
+    {
+        path:'/AcessoRestritoRegistro',
+        name: 'acessorestritoregistro',
+        component: AcessoRestritoRegistro
+    },
+    {
+        path: '/RegistroNews',
+        name: 'registronews',
+        component: RegistroNews
     }
 ]

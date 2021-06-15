@@ -1,18 +1,18 @@
 import axios from 'axios'
-import firebase from 'firebase';
+import {apiUrl} from '@/store/url';
 
 const state = {
     //lista da tela principal
     newsLista: [],
     //lista com resultados de pesquisa por notícias no Header
-    newsResult:[],
+    newsResult: [],
     //lista com resultados de pesquisa por notícias para config. do clipping
-    newsTemp:[],
+    newsTemp: [],
     //barra de progresso quando a pesquisa vai na API
     progress: false
 }
 
-const  getters = {
+const getters = {
     getNewsLista: state => state.newsLista,
     getNewsResult: state => state.newsResult,
     getNewsTemp: state => state.newsTemp,
@@ -20,85 +20,243 @@ const  getters = {
 }
 
 const mutations = {
-    setNewsLista(state,newsLista){
+    setNewsLista(state, newsLista) {
         state.newsLista.push(newsLista)
     },
-    resetNewsLista(state){
-      state.newsLista = []
+    resetNewsLista(state) {
+        state.newsLista = []
     },
-    setNewsResult(state,newsResult){
+    setNewsResult(state, newsResult) {
         state.newsResult.push(newsResult)
     },
-    resetNewsResult(state){
+    resetNewsResult(state) {
         state.newsResult = [];
     },
-    setNewsTemp(state,newsTemp){
-      state.newsTemp.push(newsTemp)
+    setNewsTemp(state, newsTemp) {
+        state.newsTemp.push(newsTemp)
     },
-    resetNewsTemp(state){
+    resetNewsTemp(state) {
         state.newsTemp = []
     },
-    setProgress(state,value){
+    setProgress(state, value) {
         state.progress = value
     }
 }
 
 const actions = {
-    inserirNews(context,payload){
-        const news = payload.mat;
-        return new Promise((resolve,reject) =>{
-            inserir(news).then(response => {
-                resolve (response)
-            }, error => {
-                reject (error)
-            })
-      })
-        function inserir (mat){
-            return new Promise((resolve,reject) => {
-                const db = firebase.firestore().collection("materias")
-                const dataMat = new Date().toLocaleDateString()
-                for (let i = 0; i < mat.length; i++) {
-                    db.doc()
-                        .set({
-                            dataMat: dataMat,
-                            title: mat[i].title,
-                            desc: mat[i].description,
-                            content: mat[i].content,
-                            urlToImage: mat[i].urlToImage,
-                            url: mat[i].url,
-                            author: mat[i].author
-                        }, {merge: true})
-                        .then(() => {
-                            resolve('ok')
-                            context.commit('resetNewsTemp')
-                        }, error => {
-                            reject (error)
-                        })
-                }
-            })
-        }
-    },
-    //chama uma function fire para inserir no banco as notícias pesquisadas
-    //conforme os parâmetros passados no payload
-    getNewsFunctions(context, payload){
+    //excluir todas as matérias(news)
+    excluirNews(context) {
         return new Promise((resolve, reject) => {
-            const pchave = encodeURI(`?pc=`+`${payload.palavra}`);
-            const onde = `&od=`+`${payload.onde}`;
-            const idioma = `&id=`+`${payload.idioma}`;
-            const numPub = `&np=`+`${payload.np}`;
-            //prod
-            const getUrl = encodeURI(`https://us-central1-clipping-z.cloudfunctions.net/getNews${pchave}${onde}${idioma}${numPub}`)
-            //dev
-            // const getUrl = encodeURI(`http://localhost:5001/clipping-z/us-central1/getNews${pchave}${onde}${idioma}${numPub}`)
-            var totResult;
-            // eslint-disable-next-line no-unused-vars
-            axios.get (getUrl).then(function(resp){
-                totResult = resp.data.articles.length
-                context.commit('resetNewsTemp')
-                for (let i=0; i < resp.data.articles.length; i++){
-                    context.commit('setNewsTemp',resp.data.articles[i])
+            const resolveList = []
+            for (let mat of context.getters.getNewsTemp) {
+                const postUrl = apiUrl + "/news/" + mat.id
+                const options = {
+                    method: 'DELETE',
+                    url: postUrl,
+                    headers: {'Content-Type': 'application/json'},
+                    withCredentials: true,
                 }
-                context.commit('setProgress',false)
+                axios.request(options).then(function () {
+                    resolveList.push('ok.')
+                }).catch(function (error) {
+                    reject(error);
+                })
+            }
+            Promise.all(resolveList)
+                .then(() => {
+                    resolve("ok.")
+                })
+                .catch((error) => {
+                    reject(error)
+                })
+        })
+    },
+    excluirNewsSelected(context, selectedNews) {
+        return new Promise((resolve, reject) => {
+            const resolveList = []
+            for (let mat of selectedNews) {
+                const postUrl = apiUrl + "/news/" + mat.id
+                const options = {
+                    method: 'DELETE',
+                    url: postUrl,
+                    headers: {'Content-Type': 'application/json'},
+                    withCredentials: true,
+                }
+                axios.request(options).then(function () {
+                    resolveList.push('ok.')
+                }).catch(function (error) {
+                    reject(error);
+                })
+            }
+            Promise.all(resolveList)
+                .then(() => {
+                    resolve("ok.")
+                })
+                .catch((error) => {
+                    reject(error)
+                })
+        })
+    },
+    //busca todas as notícias para exclusão
+    async getNewsDBExclusaoTodas(context) {
+        context.commit('resetNewsTemp')
+        const options = {
+            method: 'GET',
+            url: apiUrl + '/news',
+            withCredentials: true
+        }
+        await axios.request(options).then(function (response) {
+            for (let news of response.data) {
+                const newsObj = {
+                    author: news.autor,
+                    title: news.titulo,
+                    url: news.url,
+                    urlToImage: news.urlToImage,
+                    id: news.id,
+                    conteudo: news.conteudo,
+                    dataPublicacao: news.dataPublicacao,
+                    descricao: news.descricao
+                }
+                context.commit('setNewsTemp', newsObj)
+            }
+        }).catch(function (error) {
+            console.error(error)
+        })
+    },
+    //busca somente as noticias do dia para exclusão
+    async getNewsDBExclusao(context) {
+        //busca notícias no db do dia para excluir
+        const dataMat = new Date().toLocaleDateString()
+        context.commit('resetNewsTemp')
+        const options = {
+            method: 'POST',
+            url: apiUrl + '/newsDay',
+            data: {dia: dataMat},
+            withCredentials: true
+        }
+        await axios.request(options).then(function (response) {
+            for (let news of response.data) {
+                const newsObj = {
+                    author: news.autor,
+                    title: news.titulo,
+                    url: news.url,
+                    urlToImage: news.urlToImage,
+                    id: news.id,
+                    conteudo: news.conteudo,
+                    dataPublicacao: news.dataPublicacao,
+                    descricao: news.descricao
+                }
+                context.commit('setNewsTemp', newsObj)
+            }
+        }).catch(function (error) {
+            console.error(error)
+        })
+    },
+    //insere somente notícias selecionadas
+    inserirSelected(context, selectedNews) {
+        return new Promise((resolve, reject) => {
+            const dataMat = new Date().toLocaleDateString()
+            const postUrl = apiUrl + "/news"
+            const resolveList = []
+            for (let mat of selectedNews) {
+                const options = {
+                    method: 'POST',
+                    url: postUrl,
+                    headers: {'Content-Type': 'application/json'},
+                    withCredentials: true,
+                    data: {
+                        dataPublicacao: dataMat,
+                        titulo: mat.title,
+                        descricao: mat.description,
+                        conteudo: mat.content,
+                        urlToImage: mat.urlToImage,
+                        url: mat.url,
+                        autor: mat.author
+                    }
+                }
+                axios.request(options).then(function () {
+                    resolveList.push('ok.')
+                }).catch(function (error) {
+                    reject(error);
+                })
+            }
+            Promise.all(resolveList)
+                .then(() => {
+                    resolve("ok.")
+                })
+                .catch((error) => {
+                    reject(error)
+                })
+        })
+    },
+    //inserir noticias que estão no vuex ao invés de trazer da interface
+    inserirNews2(context) {
+        return new Promise((resolve, reject) => {
+            const dataMat = new Date().toLocaleDateString()
+            const postUrl = apiUrl + "/news"
+            const resolveList = []
+            for (let mat of context.getters.getNewsTemp) {
+                const options = {
+                    method: 'POST',
+                    url: postUrl,
+                    headers: {'Content-Type': 'application/json'},
+                    withCredentials: true,
+                    data: {
+                        dataPublicacao: dataMat,
+                        titulo: mat.title,
+                        descricao: mat.description,
+                        conteudo: mat.content,
+                        urlToImage: mat.urlToImage,
+                        url: mat.url,
+                        autor: mat.author
+                    }
+                }
+                axios.request(options).then(function () {
+                    resolveList.push('ok.')
+                }).catch(function (error) {
+                    reject(error);
+                })
+            }
+            Promise.all(resolveList)
+                .then(() => {
+                    resolve("ok.")
+                })
+                .catch((error) => {
+                    reject(error)
+                })
+
+        })
+    },
+    //pesquisa de notícias na api java para trazer a lista de notícias de acordo com palavra-chave
+    getNewsFunctions(context, payload) {
+        return new Promise((resolve, reject) => {
+            const getUrl = apiUrl + '/newsSearch'
+            let totResult;
+            const options = {
+                method: 'POST',
+                url: getUrl,
+                headers: {'Content-Type': 'application/json'},
+                withCredentials: true,
+                data: {
+                    onde: payload.onde,
+                    palavraChave: payload.palavra,
+                    language: payload.idioma,
+                    from: ontem,
+                    to: hoje,
+                    pageSize: payload.np
+                }
+            };
+            axios.request(options).then(function (resp) {
+                if (resp.data === 'login') {
+                    resolve(resp.data)
+                } else {
+                    totResult = resp.data.articles.length
+                    context.commit('resetNewsTemp')
+                    for (let i = 0; i < resp.data.articles.length; i++) {
+                        context.commit('setNewsTemp', resp.data.articles[i])
+                    }
+                    context.commit('setProgress', false)
+                }
             }).then(response => {
                 response
                 resolve(totResult)
@@ -107,64 +265,39 @@ const actions = {
             })
         })
     },
-    async excluitMatDB(context, payload) {
-        const materiasExcl = payload.materiasExcl
-        const db = firebase.firestore()
-        for (let i = 0; i < materiasExcl.length; i++) {
-            var matTit = materiasExcl[i].title
-            var materia = await db.collection('materias')
-                    .where('title', '==', matTit);
-            materia.get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    doc.ref.delete();
-                });
-
-            });
-        }
-    },
-    async getNewsDB(context){
+    async getNewsDB(context) {
         //busca notícias no db. Será usado na tela principal
+        //somente notícias do mesmo dia
+        const dataMat = new Date().toLocaleDateString()
         context.commit('resetNewsLista')
-        const dataMat = new Date().toLocaleDateString()
-        // eslint-disable-next-line no-unused-vars
-        const db = await firebase.firestore().collection("materias")
-            .where('dataMat','==',dataMat)
-            .get()
-            .then((querySnapshot) =>{
-                querySnapshot.forEach((doc) => {
-                    context.commit('setNewsLista',doc.data())
-                });
-            })
-            .catch(function(error) {
-                console.error("Error getting documents: ", error);
-            });
+        const options = {
+            method: 'POST',
+            url: apiUrl + '/newsDay',
+            data: {dia: dataMat},
+            withCredentials: true
+        }
+        axios.request(options).then(function (response) {
+            for (let news of response.data) {
+                context.commit('setNewsLista', news)
+            }
+        }).catch(function (error) {
+            console.error(error)
+        })
     },
-    async pesquisaNewsDB(context,payload){
-        //pegando as notícias do banco somente do dia atual para não pesar a consulta
-        //insere o resultado no listaMaterias e a pesquisa é feita pelos campos descrição e titulo
-        const palavraChave = payload.palavra;
-        var listaMaterias = [];
-        const dataMat = new Date().toLocaleDateString()
-        // eslint-disable-next-line no-unused-vars
-        const db = await firebase.firestore().collection("materias")
-            .where('dataMat','==',dataMat)
-            .get()
-            .then((querySnapshot) =>{
-                querySnapshot.forEach((doc) => {
-                    listaMaterias.push(doc.data())
-                });
-
-                for (let i = 0; i < listaMaterias.length; i++){
-                    if (listaMaterias[i].desc.toLowerCase().includes(palavraChave.toLowerCase()) ||
-                        listaMaterias[i].title.toLowerCase().includes(palavraChave.toLowerCase()))
-                    {
-                        context.commit('setNewsResult',listaMaterias[i])
-                    }
-                }
-            })
-            .catch(function(error) {
-                console.error("Error getting documents: ", error);
-            });
+    async pesquisaNewsDB(context, payload) {
+        //pesquisa de notícias. Funcinalidade da header
+        const options = {
+            method: 'GET',
+            url: apiUrl + '/newsPat/' + payload.palavra,
+            withCredentials: true
+        }
+        axios.request(options).then(function (response) {
+            for (let mat of response.data) {
+                context.commit('setNewsResult', mat)
+            }
+        }).catch(function (error) {
+            console.error(error)
+        })
     }
 }
 
@@ -175,3 +308,14 @@ export default {
     mutations
 }
 
+// funções auxiliares
+function ontem() {
+    //um dia atrás
+    var old = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    return old.toISOString().slice(0, 10);
+}
+
+function hoje() {
+    var datetime = new Date();
+    return datetime.toISOString().slice(0, 10);
+}

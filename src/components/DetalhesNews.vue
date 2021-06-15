@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <div v-if="!$route.params.news.title" class="mt-4">
+    <div v-if="!$route.params.news.titulo" class="mt-4">
       Nenhuma notícia selecionada
       <hr>
       <b-button  variant="dark" @click="$router.go(-1)">
@@ -8,13 +8,13 @@
     </div>
     <div v-else>
     <b-card-text class="mt-2">
-      <span style="text-shadow: 1px 1px 2px #333;font-size: 2.2em" v-html="$route.params.news.title"></span>
+      <span style="text-shadow: 1px 1px 2px #333;font-size: 2.2em" v-html="$route.params.news.titulo"></span>
     </b-card-text>
     <b-card
         overlay
         img-width="1024"
         text-variant="white"
-        :sub-title="$route.params.news.desc"
+        :sub-title="$route.params.news.descricao"
         :img-src="$route.params.news.urlToImage"
         img-alt="Image"
         img-top
@@ -22,7 +22,7 @@
         class="mt-2"
         style="max-width: 80rem;text-shadow: 1px 1px 2px #333;">
       <b-card-text>
-        <span style="text-shadow: 1px 1px 2px #333;" v-html="$route.params.news.content"></span>
+        <span style="text-shadow: 1px 1px 2px #333;" v-html="$route.params.news.conteudo"></span>
       </b-card-text>
       <div class="text-right">
         <b-card-text>

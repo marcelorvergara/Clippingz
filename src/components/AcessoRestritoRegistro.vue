@@ -4,14 +4,14 @@
       <b-col></b-col>
       <b-col style="min-width: 380px">
         <b-card no-body
-                header="Página de Login do Acesso Restrito"
+                header="Página de Criação de Login"
                 align="left"
                 header-bg-variant="secondary"
                 header-text-variant="white">
           <div class="card-body">
             <b-alert v-if="sucesso" show="5" variant="success" dismissible>{{sucesso}}</b-alert >
             <b-alert v-if="error" show="10" variant="danger" dismissible>{{error}}</b-alert >
-            <form action="#" @submit.prevent="logar">
+            <form action="#" @submit.prevent="criarLogin">
 
               <b-input-group class="" size="">
                 <b-input-group-append>
@@ -48,21 +48,26 @@
                   />
                 </b-input-group>
 
-              <input type="hidden"
-                     name="${_csrf.parameterName}"
-                     value="${_csrf.token}"/>
+              <b-input-group class=" mt-3 mb-2" size="">
+                <b-input-group-append>
+                  <b-input-group-text>
+                    <b-icon icon="key" />
+                  </b-input-group-text>
+                </b-input-group-append>
+                <b-form-input
+                    id="senha2"
+                    type="password"
+                    class="form-control"
+                    name="senha2"
+                    v-model="form.senha2"
+                    placeholder="Repitir a senha"
+                />
+              </b-input-group>
 
-              <div class="text-monospace text-sm-right mb-2">
-                <b-link style="font-size: 14px" @click="registroForm">Criar Usuário</b-link>
-              </div>
-              <b-form-group class="mb-0 text-right">
+              <b-form-group class="mb-0 mt-4 text-right">
                 <b-button size="sm" @click="$router.go(-1)" variant="outline-dark" class="ml-2">Voltar</b-button>
-                <b-button size="sm" @click="restSenha" variant="outline-dark"  class="ml-2">
-                  Reset Senha
-                  <b-spinner v-show="loadingRS" small label="Carregando..."></b-spinner>
-                </b-button>
                 <b-button size="sm" type="submit" variant="outline-dark" class="ml-2">
-                  Login
+                  Criar
                   <b-spinner v-show="loading" small label="Carregando..."></b-spinner>
                 </b-button>
               </b-form-group>
@@ -84,43 +89,35 @@ export default {
       loading: false,
       form: {
         email: "",
-        senha: ""
+        senha: "",
+        senha2:""
       },
       error: null,
       sucesso:null
     };
   },
   methods: {
-    registroForm(){
-      this.$router.push({path: 'AcessoRestritoRegistro'})
-    },
-    restSenha(){
-      console.warn('em desenvolvimento...')
-    },
-    logar() {
+    criarLogin() {
       this.error = ''
       this.loading = true
-      this.$store.dispatch('logarUser', {username: this.form.email, password: this.form.senha})
+      this.$store.dispatch('criarLogin',{username: this.form.email, password: this.form.senha, passwordConfirm: this.form.senha2})
           .then(res => {
-            if (res === 'ok.'){
+            if (res.data === 'logado'){
               this.loading = false;
-              this.$router.replace({ name: "registronews" });
+              this.$router.replace({ name: "confignews" });
             }else{
-              this.error = 'Email e/ou senha inválidos!'
-              this.loading = false;
+              console.error('erro no processo criação de user', res)
             }
           })
           .catch((error) => {
             this.loadingRS = false;
-            console.log(error.message)
+            console.log(error)
             if (error.message === 'There is no user record corresponding to this identifier. The user may have been deleted.'){
               this.error = 'Email ou login não encontrado!'
             } else if (error.message === 'The email address is badly formatted.'){
               this.error = 'Email inválido!'
             } else if (error.message === 'The password is invalid or the user does not have a password.'){
               this.error = 'Email e/ou senha inválidos!'
-            } else {
-              this.error = error
             }
             this.loading = false;
           });
